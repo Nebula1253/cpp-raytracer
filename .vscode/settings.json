@@ -1,0 +1,8 @@
+{
+    "cmake.configureOnOpen": true,
+    "cmake.cmakePath": "C:\\Program Files\\CMake\\bin\\cmake.exe",
+    "cmake.additionalCompilerSearchDirs": [
+      "C:\\mingw64\\bin"
+    ]
+    
+}
