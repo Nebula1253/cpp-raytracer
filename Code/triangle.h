@@ -18,33 +18,40 @@ class triangle : public shape {
         point3 get_vertex(int i) const { return vertices[i]; }
 
         bool intersection_neel(const ray& r) const {
-            vec3 edge1 = vertices[1] - vertices[0];
-            vec3 edge2 = vertices[2] - vertices[0];
+            const float EPSILON = 0.000001;
+            vec3 v1_minus_v0 = vertices[1] - vertices[0];
+            vec3 v2_minus_v0 = vertices[2] - vertices[0];
 
-            vec3 plane_normal = -cross(edge1, edge2);
-            vec3 dir = r.direction();
-            if (dot(plane_normal, dir) == 0.0) {
+            vec3 plane_normal = unit_vector(cross(v1_minus_v0, v2_minus_v0));
+            vec3 dir = unit_vector(r.direction());
+            if (dot(plane_normal, dir) > -EPSILON && dot(plane_normal, dir) < EPSILON) {
                 return false; // the ray is parallel to the plane of the triangle, so how the hell would it ever intersect
             }
+            // else std::cerr << "plane normal: " << plane_normal << "\n";
+
+            // Cramer's rule: the solution to the system of equations Ax = b, where A is a 3x3 matrix, and both x and b are 3-vectors,
+            // can be written as x = (det(A1)/det(A), det(A2)/det(A), det(A3)/det(A)), where A1, A2, and A3 are the matrices formed by
+            // replacing the first, second, and third columns of A with b, respectively.
+            // Here, A is the matrix [-dir, v1_minus_v0, v2_minus_v0], x is the vector [t,u,v] and b is the vector O_minus_v1.
+            auto O_minus_v1 = r.origin() - vertices[0];
 
             // the scalar product is defined as dot(a, cross(b, c)) - can be seen as the determinant of the matrix [a, b, c]
-            auto O_minus_v1 = r.origin() - vertices[0];
-            auto det_a = dot(dir, plane_normal);
-            auto det_a1 = dot(O_minus_v1, plane_normal);
-            auto det_a2 = dot(dir, cross(O_minus_v1, edge2));
-            auto det_a3 = dot(dir, cross(edge2, O_minus_v1));
+            auto det_a = dot(-dir, cross(v1_minus_v0, v2_minus_v0));
+            auto det_a1 = dot(O_minus_v1, cross(v1_minus_v0, v2_minus_v0));
+            auto det_a2 = dot(-dir, cross(O_minus_v1, v2_minus_v0));
+            auto det_a3 = dot(-dir, cross(v2_minus_v0, O_minus_v1));
 
             auto t = det_a1 / det_a;
             auto u = det_a2 / det_a;
             auto v = det_a3 / det_a;
 
             // print t,u,v to std::cerr
-            std::cerr << "t: " << t << " u: " << u << " v: " << v << "\n";
+            // std::cerr << "t: " << t << " u: " << u << " v: " << v << "\n";
 
-            return !(u < 0 || v < 0 || u+v > 1 || t <= 0);
+            return !(u < 0 || v < 0 || u+v > 1 || t <= EPSILON);
         }
 
-        // stolen off wikipedia's page on the MT algorithm
+        // stolen off wikipedia's page on the MT algorithm, adapted to fit the vec3 and ray implementation
         bool intersection(const ray&r) const {
             const float EPSILON = 0.000001;
             vec3 vertex0 = vertices[0];

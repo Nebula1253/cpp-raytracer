@@ -4,6 +4,7 @@
 #include "vec3.h"
 #include "sphere.h"
 #include "triangle.h"
+#include "cylinder.h"
 
 #include <iostream>
 
@@ -44,8 +45,10 @@ int main() {
     auto pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
     // Render
-    // sphere s(point3(0,0,-1), 0.5);
-    triangle tri(point3(0,0,-1), point3(0,0.25,-1), point3(0.25,0.25,-1));
+    sphere s(point3(0,0,-1), 0.5);
+    // triangle tri(point3(0,0,-1), point3(0,0.25,-1), point3(0.25,0.25,-1));
+    triangle tri(point3(0.5,0.5,-1), point3(0,0.5,-1), point3(0,0,-1));
+    cylinder cyl(point3(0,0,-1), vec3(0,0,1), 0.5, 0.25);
     std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
 
     for (int j = 0; j < image_height; ++j) {
@@ -55,7 +58,7 @@ int main() {
             auto ray_direction = pixel_center - camera_center;
             ray r(camera_center, ray_direction);
 
-            color pixel_color = ray_color(r, tri);
+            color pixel_color = ray_color(r, cyl);
             write_color(std::cout, pixel_color);
         }
     }
