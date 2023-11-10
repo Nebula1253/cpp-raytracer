@@ -41,14 +41,15 @@ int main() {
 
     // Calculate the location of the upper left pixel.
     auto viewport_upper_left = camera_center
-                             - vec3(0, 0, focal_length) - viewport_u/2 - viewport_v/2;
+                             + vec3(0, 0, focal_length) - viewport_u/2 - viewport_v/2;
+    std::cerr << "viewport_upper_left: " << viewport_upper_left << "\n";
     auto pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
     // Render
     sphere s(point3(0,0,-1), 0.5);
     // triangle tri(point3(0,0,-1), point3(0,0.25,-1), point3(0.25,0.25,-1));
     triangle tri(point3(0.5,0.5,-1), point3(0,0.5,-1), point3(0,0,-1));
-    cylinder cyl(point3(0,0,-1), vec3(0,0,1), 0.5, 0.25);
+    cylinder cyl(point3(0,0,1), vec3(0,0,1), 0.5, 0.25);
     std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
 
     for (int j = 0; j < image_height; ++j) {
