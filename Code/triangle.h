@@ -52,7 +52,8 @@ class triangle : public shape {
         }
 
         // stolen off wikipedia's page on the MT algorithm, adapted to fit the vec3 and ray implementation
-        bool intersection(const ray&r) const {
+        bool intersection(const ray&r) const override {
+            // std::cerr << "THIS IS THE TRIANGLE INTERSECTION" << std::endl;
             const float EPSILON = 0.000001;
             vec3 vertex0 = vertices[0];
             vec3 vertex1 = vertices[1];  
@@ -93,11 +94,11 @@ class triangle : public shape {
             if (t > EPSILON) // ray intersection
             {
                 // outIntersectionPoint = rayOrigin + rayVector * t;
-                std::cerr << "YAY! t: " << t << " u: " << u << " v: " << v << "\n";
+                // std::cerr << "YAY! t: " << t << " u: " << u << " v: " << v << "\n";
                 return true;
             }
             else // This means that there is a line intersection but not a ray intersection.
-                std::cerr << "t: " << t << " u: " << u << " v: " << v << "\n";
+                // std::cerr << "t: " << t << " u: " << u << " v: " << v << "\n";
                 return false;
         }
 }; 

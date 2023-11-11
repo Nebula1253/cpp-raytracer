@@ -7,8 +7,11 @@
 #include "vec3.h"
 
 class shape {
-public:
-    virtual bool intersection(const ray& r) const = 0;
+    public:
+        virtual bool intersection(const ray& r) const {
+            return false;
+        };
+        virtual ~shape() = default;
 };
 
 #endif

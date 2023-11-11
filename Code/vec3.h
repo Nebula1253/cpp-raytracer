@@ -80,8 +80,9 @@ inline vec3 operator*(const vec3 &v, double t) {
 inline vec3 operator*(const vec3 &u, const double matrix[3][3]) {
     vec3 result;
     for (int i = 0; i < 3; ++i) {
-        result[i] = u.x() * matrix[i][0] + u.y() * matrix[i][1] + u.z() * matrix[i][2];
+        result.e[i] = u.x() * matrix[i][0] + u.y() * matrix[i][1] + u.z() * matrix[i][2];
     }
+    return result;
 }
 
 inline vec3 operator/(vec3 v, double t) {
@@ -129,6 +130,7 @@ inline void rotationMatrix(const vec3& u, const vec3& v, double result[3][3]) {
             result[i][j] = cos(theta) * identity[i][j] +
                            (1 - cos(theta)) * skewSymmetricK[i][j] +
                            sin(theta) * skewSymmetricK[i][j];
+            __isnan(result[i][j]) ? result[i][j] = 0 : result[i][j] = result[i][j];
         }
     }
 }

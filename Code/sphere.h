@@ -17,7 +17,8 @@ class sphere : public shape {
         point3 get_center() const { return center; }
         double get_radius() const { return radius; }
 
-        bool intersection(const ray& r) const {
+        bool intersection(const ray& r) const override {
+            // std::cerr << "THIS IS THE SPHERE INTERSECTION" << std::endl;
             vec3 oc = r.origin() - center;
 
             // we have an equation to solve: 
