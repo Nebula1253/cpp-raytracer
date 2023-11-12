@@ -9,6 +9,7 @@
 class shape {
     public:
         virtual bool intersection(const ray& r) const {
+            std::cerr << "under no circumstances should this be fucking called ever" << std::endl;
             return false;
         };
         virtual ~shape() = default;

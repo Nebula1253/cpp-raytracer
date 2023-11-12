@@ -53,7 +53,7 @@ class triangle : public shape {
 
         // stolen off wikipedia's page on the MT algorithm, adapted to fit the vec3 and ray implementation
         bool intersection(const ray&r) const override {
-            // std::cerr << "THIS IS THE TRIANGLE INTERSECTION" << std::endl;
+            std::cerr << "THIS IS THE TRIANGLE INTERSECTION" << std::endl;
             const float EPSILON = 0.000001;
             vec3 vertex0 = vertices[0];
             vec3 vertex1 = vertices[1];  
