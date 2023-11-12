@@ -67,8 +67,9 @@ int main(int argc, char *argv[]) {
 
             auto sphereRadius = sceneShapes[i]["radius"].get<double>();
 
-            sphere s = sphere(sphereCenterPoint, sphereRadius);
-            shapes.push_back(&s);
+            // amended by chatgpt
+            sphere* s = new sphere(sphereCenterPoint, sphereRadius);
+            shapes.push_back(s);
         }
         else if (shapeType == "triangle") {
             auto v0 = sceneShapes[i]["v0"].get<std::vector<double>>();
@@ -80,8 +81,8 @@ int main(int argc, char *argv[]) {
             auto v2 = sceneShapes[i]["v2"].get<std::vector<double>>();
             point3 v2Point(v2[0], v2[1], v2[2]);
 
-            triangle tri = triangle(v0Point, v1Point, v2Point);
-            shapes.push_back(&tri);
+            triangle* tri = new triangle(v0Point, v1Point, v2Point);
+            shapes.push_back(tri);
         }
         else if (shapeType == "cylinder") {
             auto cylinderCenter = sceneShapes[i]["center"].get<std::vector<double>>();
@@ -93,13 +94,15 @@ int main(int argc, char *argv[]) {
             auto cylinderRadius = sceneShapes[i]["radius"].get<double>();
             auto cylinderHeight = sceneShapes[i]["height"].get<double>();
 
-            cylinder cyl = cylinder(cylinderCenterPoint, cylinderAxisVector, cylinderRadius, cylinderHeight);
-            shapes.push_back(&cyl);
+            cylinder* cyl = new cylinder(cylinderCenterPoint, cylinderAxisVector, cylinderRadius, cylinderHeight);
+            shapes.push_back(cyl);
         }
     }
 
     scene sce = scene(sceneBackgroundColor, shapes);
 
+    // Render
+    std::cout << "P3\n" << cam.getWidth() << ' ' << cam.getHeight() << "\n255\n";
     for (int j = 0; j < cam.getHeight(); ++j) {
         std::clog << "\rScanlines remaining: " << (cam.getHeight() - j) << ' ' << std::flush;
 
