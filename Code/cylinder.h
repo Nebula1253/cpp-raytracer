@@ -24,8 +24,9 @@ class cylinder : public shape {
         bool intersection(const ray& r) const override {
             // std::cerr << "THIS IS THE CYLINDER INTERSECTION" << std::endl;
             bool curvedSurfaceIntersection = false, capsIntersection = false;
+            vec3 bottom = center - (axis * height);
 
-            vec3 oc = r.origin() - center;
+            vec3 oc = r.origin() - bottom;
 
             // not part of the original copilot output: added by copilot later once 
             // I had a different reference for cylinders with an arbitrary axis open in Chrome: oh god copilot is going to kill us all
@@ -45,12 +46,12 @@ class cylinder : public shape {
                 double m1 = dot(r.direction(), axis) * t0 + dot(oc, axis);
                 double m2 = dot(r.direction(), axis) * t1 + dot(oc, axis);
 
-                curvedSurfaceIntersection = ((m1 <= height && m1 >= 0) || (m2 <= height && m2 >= 0));
+                curvedSurfaceIntersection = ((m1 <= 2*height && m1 >= 0) || (m2 <= 2*height && m2 >= 0));
             }
             
             // IMPLEMENT PLANE INTERSECTIONS AT CAPS LOL
             // largely generated line-by-line by copilot, when i had a ray-disk intersection tutorial open in chrome
-            auto plane1point = center;
+            auto plane1point = bottom;
             auto plane2point = center + (axis * height);
 
             auto plane1normal = -axis;
