@@ -21,9 +21,10 @@ class sphere : public shape {
 
         point3 get_center() const { return center; }
         double get_radius() const { return radius; }
-        material get_material() const {return mat;}
 
-        bool intersection(const ray& r) const override {
+        material get_material() const override {return mat;}
+
+        double intersection(const ray& r) const override {
             // std::cerr << "THIS IS THE SPHERE INTERSECTION" << std::endl;
             vec3 oc = r.origin() - center;
 
@@ -33,12 +34,19 @@ class sphere : public shape {
             auto c = dot(oc, oc) - radius*radius;
             auto discriminant = b*b - 4*a*c; // the square root term in the quadratic formula
 
-            return (discriminant >= 0);
+            // return (discriminant >= 0);
 
-            // auto t1 = -b + sqrt(discriminant) / (2.0*a);
-            // auto t2 = -b - sqrt(discriminant) / (2.0*a);
+            auto t1 = -b + sqrt(discriminant) / (2.0*a);
+            auto t2 = -b - sqrt(discriminant) / (2.0*a);
 
-            // if (t1 < 0 && t2 < 0) return false; // both solutions are negative, meaning the object is BEHIND the camera, so who cares lol
-            // else return true;
+            if (t1 < 0 && t2 < 0) return -1; // both solutions are negative, meaning the object is BEHIND the camera, so who cares lol
+            if (t1 < 0) return t2; // t1 is negative, so return t2
+            if (t2 < 0) return t1; // t2 is negative, so return t1
+            return (t1 < t2) ? t1 : t2; // both are positive, so return the smaller one
+        }
+
+        // copilot babey
+        vec3 get_normal(point3 point) const override {
+            return unit_vector(point - center);
         }
 };

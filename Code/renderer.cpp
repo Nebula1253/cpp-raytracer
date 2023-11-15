@@ -15,12 +15,74 @@ using json = nlohmann::json;
 
 #include <iostream>
 
-color ray_color(const ray& r, scene& s) {
+std::string renderMode;
+
+color ray_color(const ray& r, scene& s, vec3 cameraPosition) {
     for (int i = 0; i < s.getShapes().size(); ++i) {
-        bool intersect = s.getShapes()[i]->intersection(r);
-        if (intersect) return color(1,0,0);
+        shape* currentShape = s.getShapes()[i];
+        double intersect = currentShape->intersection(r);
+        if (intersect != -1) {
+            if (renderMode == "binary") {
+                return color(1,0,0);
+            }
+            else if (renderMode == "phong") {
+                auto pointOnSurface = r.at(intersect);
+                color ambient = color(0,0,0);
+                for (int j = 0; j < s.getLights().size(); ++j) {
+                    auto kd = currentShape->get_material().get_kd();
+                    auto ks = currentShape->get_material().get_ks();
+                    auto specularExponent = currentShape->get_material().get_specular_exponent();
+                    color materialDiffuse = currentShape->get_material().get_diffuse_color();
+                    color materialSpecular = currentShape->get_material().get_specular_color();
+
+                    vec3 lightVector = unit_vector(s.getLights()[j]->getPosition() - pointOnSurface);
+                    vec3 normalVector = currentShape->get_normal(pointOnSurface);
+                    vec3 viewVector = unit_vector(cameraPosition - pointOnSurface);
+
+                    vec3 reflectionVector = unit_vector(2 * (dot(lightVector, normalVector)) * normalVector - lightVector);
+
+                    color lightIntensity = s.getLights()[j]->getIntensity();
+                    auto lightNormalDot = std::max(dot(lightVector, normalVector), 0.0);
+                    auto viewReflectionDot = std::max(dot(viewVector, reflectionVector), 0.0);
+
+                    std::vector<double> colour(3);
+                    for (int k = 0; k < 3; ++k) {
+                        auto diffuseTerm = kd * materialDiffuse[k] * lightIntensity[k] * lightNormalDot;
+                        auto specularTerm = ks * materialSpecular[k] * lightIntensity[k] * pow(viewReflectionDot, specularExponent);
+                        colour[k] = diffuseTerm + specularTerm;
+                    }
+                    color phongColor(colour[0], colour[1], colour[2]);
+                    ambient += phongColor;
+                }
+            }
+        } 
     }
     return s.getBackgroundColor();
+}
+
+material parse_material(const json& j) {
+    // auto sphereMaterial = j["material"];
+
+    auto ks = j["ks"].get<double>();
+    auto kd = j["kd"].get<double>();
+
+    auto specularExponent = j["specularexponent"].get<int>();
+
+    auto isReflective = j["isreflective"].get<bool>();
+    auto reflectivity = j["reflectivity"].get<double>();
+
+    auto isRefractive = j["isrefractive"].get<bool>();
+    auto refractiveIndex = j["refractiveindex"].get<double>();
+
+    auto diffuse = j["diffusecolor"].get<std::vector<double>>();
+    color diffuseColor = color(diffuse[0], diffuse[1], diffuse[2]);
+
+    auto specular = j["specularcolor"].get<std::vector<double>>();
+    color specularColor = color(specular[0], specular[1], specular[2]);
+
+    material mat = material(ks, kd, reflectivity, refractiveIndex, specularExponent, 
+                            diffuseColor, specularColor, isReflective, isRefractive);\
+    return mat;
 }
 
 camera parse_camera_params(const json& j) {
@@ -50,19 +112,22 @@ scene parse_scene_params(const json& j) {
     auto sceneBackgroundColorData = j["backgroundcolor"].get<std::vector<double>>();
     color sceneBackgroundColor(sceneBackgroundColorData[0], sceneBackgroundColorData[1], sceneBackgroundColorData[2]);
 
-    auto sceneLightSources = j["lightsources"];
     std::vector<pointlight*> lightsources;
-    if (!sceneLightSources.is_null()) {
-        for (int i = 0; i < sceneLightSources.size(); ++i) {
-            auto light = sceneLightSources[i];
-            auto lightPosition = light["position"].get<std::vector<double>>();
-            point3 lightPositionPoint(lightPosition[0], lightPosition[1], lightPosition[2]);
+    if (renderMode != "binary") {
+        auto sceneLightSources = j["lightsources"];
+        std::vector<pointlight*> lightsources;
+        if (!j["lightsources"].is_null()) {
+            for (int i = 0; i < sceneLightSources.size(); ++i) {
+                auto light = sceneLightSources[i];
+                auto lightPosition = light["position"].get<std::vector<double>>();
+                point3 lightPositionPoint(lightPosition[0], lightPosition[1], lightPosition[2]);
 
-            auto lightIntensity = light["intensity"].get<std::vector<double>>();
-            color lightIntensityColor(lightIntensity[0], lightIntensity[1], lightIntensity[2]);
+                auto lightIntensity = light["intensity"].get<std::vector<double>>();
+                color lightIntensityColor(lightIntensity[0], lightIntensity[1], lightIntensity[2]);
 
-            pointlight* l = new pointlight(lightPositionPoint, lightIntensityColor);
-            lightsources.push_back(l);
+                pointlight* l = new pointlight(lightPositionPoint, lightIntensityColor);
+                lightsources.push_back(l);
+            }
         }
     }
 
@@ -146,31 +211,6 @@ scene parse_scene_params(const json& j) {
     return sce;
 }
 
-material parse_material(const json& j) {
-    // auto sphereMaterial = j["material"];
-
-    auto ks = j["ks"].get<double>();
-    auto kd = j["kd"].get<double>();
-
-    auto specularExponent = j["specularexponent"].get<int>();
-
-    auto isReflective = j["isreflective"].get<bool>();
-    auto reflectivity = j["reflectivity"].get<double>();
-
-    auto isRefractive = j["isrefractive"].get<bool>();
-    auto refractiveIndex = j["refractiveindex"].get<double>();
-
-    auto diffuse = j["diffusecolor"].get<std::vector<double>>();
-    color diffuseColor = color(diffuse[0], diffuse[1], diffuse[2]);
-
-    auto specular = j["specularcolor"].get<std::vector<double>>();
-    color specularColor = color(specular[0], specular[1], specular[2]);
-
-    material mat = material(ks, kd, reflectivity, refractiveIndex, specularExponent, 
-                            diffuseColor, specularColor, isReflective, isRefractive);\
-    return mat;
-}
-
 
 int main(int argc, char *argv[]) {
     // assuming the file name of the JSON file is passed as the first argument
@@ -182,6 +222,8 @@ int main(int argc, char *argv[]) {
 
     std::ifstream jsonFile(filepath + argv[1]);
     json j = json::parse(jsonFile);
+
+    renderMode = j["rendermode"].get<std::string>();
 
     // Parse camera parameters
     camera cam = parse_camera_params(j["camera"]);
@@ -199,7 +241,7 @@ int main(int argc, char *argv[]) {
             auto ray_direction = pixel_center - cam.getPosition();
             ray r(cam.getPosition(), ray_direction);
             
-            color pixel_color = ray_color(r, sce);
+            color pixel_color = ray_color(r, sce, cam.getPosition());
             write_color(std::cout, pixel_color);
         }
     }

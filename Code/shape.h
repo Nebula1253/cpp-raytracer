@@ -5,14 +5,19 @@
 
 #include "ray.h"
 #include "vec3.h"
+#include "material.h"
 
 class shape {
     public:
-        virtual bool intersection(const ray& r) const {
+        virtual double intersection(const ray& r) const {
             std::cerr << "under no circumstances should this be fucking called ever" << std::endl;
-            return false;
+            return -1;
         };
+        virtual material get_material() const {}
+        virtual vec3 get_normal(point3 point) const {}
+
         virtual ~shape() = default;
+        
 };
 
 #endif

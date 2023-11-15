@@ -55,8 +55,10 @@ class triangle : public shape {
             return !(u < 0 || v < 0 || u+v > 1 || t <= EPSILON);
         }
 
+        material get_material() const override {return mat;}
+
         // stolen off wikipedia's page on the MT algorithm, adapted to fit the vec3 and ray implementation
-        bool intersection(const ray&r) const override {
+        double intersection(const ray&r) const override {
             // std::cerr << "THIS IS THE TRIANGLE INTERSECTION" << std::endl;
             const float EPSILON = 0.000001;
             vec3 vertex0 = vertices[0];
@@ -99,11 +101,18 @@ class triangle : public shape {
             {
                 // outIntersectionPoint = rayOrigin + rayVector * t;
                 // std::cerr << "YAY! t: " << t << " u: " << u << " v: " << v << "\n";
-                return true;
+                return t;
             }
             else // This means that there is a line intersection but not a ray intersection.
                 // std::cerr << "t: " << t << " u: " << u << " v: " << v << "\n";
-                return false;
+                return -1;
+        }
+
+        // COPILOT BABEY
+        vec3 get_normal(point3 point) const override {
+            vec3 v1_minus_v0 = vertices[1] - vertices[0];
+            vec3 v2_minus_v0 = vertices[2] - vertices[0];
+            return unit_vector(cross(v1_minus_v0, v2_minus_v0));
         }
 }; 
 

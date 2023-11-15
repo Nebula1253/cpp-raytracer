@@ -16,15 +16,15 @@ class material {
         material(double ks, double kd, double reflectivity, double refractiveIndex, int specularExponent, color diffuseColor, color specularColor, bool isReflective, bool isRefractive) : 
             ks(ks), kd(kd), reflectivity(reflectivity), refractiveIndex(refractiveIndex), specularExponent(specularExponent), diffuseColor(diffuseColor), specularColor(specularColor), isReflective(isReflective), isRefractive(isRefractive) {};
 
-        double getKs() const { return ks; };
-        double getKd() const { return kd; };
-        double getReflectivity() const { return reflectivity; };
-        double getRefractiveIndex() const { return refractiveIndex; };
-        int getSpecularExponent() const { return specularExponent; };
-        color getDiffuseColor() const { return diffuseColor; };
-        color getSpecularColor() const { return specularColor; };
-        bool getIsReflective() const { return isReflective; };
-        bool getIsRefractive() const { return isRefractive; };
+        double get_ks() const { return ks; };
+        double get_kd() const { return kd; };
+        double get_reflectivity() const { return reflectivity; };
+        double get_refractive_index() const { return refractiveIndex; };
+        int get_specular_exponent() const { return specularExponent; };
+        color get_diffuse_color() const { return diffuseColor; };
+        color get_specular_color() const { return specularColor; };
+        bool get_is_reflective() const { return isReflective; };
+        bool get_is_refractive() const { return isRefractive; };
 
 };
 

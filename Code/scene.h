@@ -23,6 +23,7 @@ class scene {
             lightsources(lightsources){};
 
         std::vector<shape*> getShapes() const { return shapes; };
+        std::vector<pointlight*> getLights() const { return lightsources; }
         color getBackgroundColor() const { return background_color; };
 };
 
