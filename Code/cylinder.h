@@ -9,11 +9,14 @@ class cylinder : public shape {
         vec3 axis;
         double radius;
         double height;
+        material mat;
 
     public:
         cylinder() {}
         cylinder(const point3& center, const vec3& axis, double radius, double height) :
             center(center), axis(axis), radius(radius), height(height) {}
+        cylinder(const point3& center, const vec3& axis, const material& mat, double radius, double height) :
+            center(center), axis(axis), radius(radius), height(height), mat(mat) {}
 
         point3 get_center() const {return center;}
         vec3 get_axis() const {return axis;}

@@ -7,10 +7,14 @@
 class triangle : public shape {
     private:
         point3 vertices[3];
+        material mat;
     public:
         triangle() {}
         triangle(const point3& v1, const point3& v2, const point3& v3)
             : vertices{v1, v2, v3}
+        {}
+        triangle(const point3& v1, const point3& v2, const point3& v3, const material& mat)
+            : vertices{v1, v2, v3}, mat(mat)
         {}
 
         // get function for vertices

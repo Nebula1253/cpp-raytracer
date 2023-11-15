@@ -50,6 +50,22 @@ scene parse_scene_params(const json& j) {
     auto sceneBackgroundColorData = j["backgroundcolor"].get<std::vector<double>>();
     color sceneBackgroundColor(sceneBackgroundColorData[0], sceneBackgroundColorData[1], sceneBackgroundColorData[2]);
 
+    auto sceneLightSources = j["lightsources"];
+    std::vector<pointlight*> lightsources;
+    if (!sceneLightSources.is_null()) {
+        for (int i = 0; i < sceneLightSources.size(); ++i) {
+            auto light = sceneLightSources[i];
+            auto lightPosition = light["position"].get<std::vector<double>>();
+            point3 lightPositionPoint(lightPosition[0], lightPosition[1], lightPosition[2]);
+
+            auto lightIntensity = light["intensity"].get<std::vector<double>>();
+            color lightIntensityColor(lightIntensity[0], lightIntensity[1], lightIntensity[2]);
+
+            pointlight* l = new pointlight(lightPositionPoint, lightIntensityColor);
+            lightsources.push_back(l);
+        }
+    }
+
     auto sceneShapes = j["shapes"];
     std::vector<shape*> shapes;
 
@@ -63,9 +79,18 @@ scene parse_scene_params(const json& j) {
 
             auto sphereRadius = sceneShapes[i]["radius"].get<double>();
 
-            // amended by chatgpt
-            sphere* s = new sphere(sphereCenterPoint, sphereRadius);
-            shapes.push_back(s);
+            if (!sceneShapes[i]["material"].is_null()) {
+                auto sphereMaterial = sceneShapes[i]["material"];
+
+                material mat = parse_material(sphereMaterial);
+
+                sphere* s = new sphere(sphereCenterPoint, mat, sphereRadius);
+                shapes.push_back(s);
+            }
+            else {
+                sphere* s = new sphere(sphereCenterPoint, sphereRadius);
+                shapes.push_back(s);
+            }
         }
         else if (shapeType == "triangle") {
             auto v0 = sceneShapes[i]["v0"].get<std::vector<double>>();
@@ -77,8 +102,20 @@ scene parse_scene_params(const json& j) {
             auto v2 = sceneShapes[i]["v2"].get<std::vector<double>>();
             point3 v2Point(v2[0], v2[1], v2[2]);
 
-            triangle* tri = new triangle(v0Point, v1Point, v2Point);
-            shapes.push_back(tri);
+            if (!sceneShapes[i]["material"].is_null()) {
+                auto sphereMaterial = sceneShapes[i]["material"];
+
+                material mat = parse_material(sphereMaterial);
+
+                // sphere* s = new sphere(sphereCenterPoint, mat, sphereRadius);
+                triangle* tri = new triangle(v0Point, v1Point, v2Point, mat);
+                shapes.push_back(tri);
+            }
+            else {
+                // sphere* s = new sphere(sphereCenterPoint, sphereRadius);
+                triangle* tri = new triangle(v0Point, v1Point, v2Point);
+                shapes.push_back(tri);
+            }
         }
         else if (shapeType == "cylinder") {
             auto cylinderCenter = sceneShapes[i]["center"].get<std::vector<double>>();
@@ -90,13 +127,48 @@ scene parse_scene_params(const json& j) {
             auto cylinderRadius = sceneShapes[i]["radius"].get<double>();
             auto cylinderHeight = sceneShapes[i]["height"].get<double>();
 
-            cylinder* cyl = new cylinder(cylinderCenterPoint, cylinderAxisVector, cylinderRadius, cylinderHeight);
-            shapes.push_back(cyl);
+            if (!sceneShapes[i]["material"].is_null()) {
+                auto sphereMaterial = sceneShapes[i]["material"];
+
+                material mat = parse_material(sphereMaterial);
+
+                cylinder* cyl = new cylinder(cylinderCenterPoint, cylinderAxisVector, mat, cylinderRadius, cylinderHeight);
+                shapes.push_back(cyl);
+            }
+            else {
+                cylinder* cyl = new cylinder(cylinderCenterPoint, cylinderAxisVector, cylinderRadius, cylinderHeight);
+                shapes.push_back(cyl);
+            }
         }
     }
 
-    scene sce = scene(sceneBackgroundColor, shapes);
+    scene sce = scene(sceneBackgroundColor, shapes, lightsources);
     return sce;
+}
+
+material parse_material(const json& j) {
+    // auto sphereMaterial = j["material"];
+
+    auto ks = j["ks"].get<double>();
+    auto kd = j["kd"].get<double>();
+
+    auto specularExponent = j["specularexponent"].get<int>();
+
+    auto isReflective = j["isreflective"].get<bool>();
+    auto reflectivity = j["reflectivity"].get<double>();
+
+    auto isRefractive = j["isrefractive"].get<bool>();
+    auto refractiveIndex = j["refractiveindex"].get<double>();
+
+    auto diffuse = j["diffusecolor"].get<std::vector<double>>();
+    color diffuseColor = color(diffuse[0], diffuse[1], diffuse[2]);
+
+    auto specular = j["specularcolor"].get<std::vector<double>>();
+    color specularColor = color(specular[0], specular[1], specular[2]);
+
+    material mat = material(ks, kd, reflectivity, refractiveIndex, specularExponent, 
+                            diffuseColor, specularColor, isReflective, isRefractive);\
+    return mat;
 }
 
 
