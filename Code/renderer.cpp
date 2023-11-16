@@ -43,12 +43,23 @@ color ray_color(const ray& r, scene& s, vec3 cameraPosition) {
 
                     color lightIntensity = s.getLights()[j]->getIntensity();
                     auto lightNormalDot = std::max(dot(lightVector, normalVector), 0.0);
+
+                    // Term used in phong
                     auto viewReflectionDot = std::max(dot(viewVector, reflectionVector), 0.0);
+
+                    // Term used in blinn-phong
+                    vec3 halfwayVector = unit_vector(lightVector + viewVector);
+                    auto viewHalfwayDot = std::max(dot(viewVector, halfwayVector), 0.0);
 
                     std::vector<double> colour(3);
                     for (int k = 0; k < 3; ++k) {
                         auto diffuseTerm = kd * materialDiffuse[k] * lightIntensity[k] * lightNormalDot;
+
+                        // phong term
                         auto specularTerm = ks * materialSpecular[k] * lightIntensity[k] * pow(viewReflectionDot, specularExponent);
+
+                        // blinn-phong term
+                        // auto specularTerm = ks * materialSpecular[k] * lightIntensity[k] * pow(viewHalfwayDot, specularExponent);
                         colour[k] = diffuseTerm + specularTerm;
                     }
                     color phongColor(colour[0], colour[1], colour[2]);
