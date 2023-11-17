@@ -112,7 +112,7 @@ class triangle : public shape {
         vec3 get_normal(point3 point) const override {
             vec3 v1_minus_v0 = vertices[1] - vertices[0];
             vec3 v2_minus_v0 = vertices[2] - vertices[0];
-            return unit_vector(cross(v1_minus_v0, v2_minus_v0));
+            return -unit_vector(cross(v1_minus_v0, v2_minus_v0));
         }
 }; 
 

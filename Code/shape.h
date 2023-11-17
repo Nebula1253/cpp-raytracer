@@ -10,11 +10,14 @@
 class shape {
     public:
         virtual double intersection(const ray& r) const {
-            std::cerr << "under no circumstances should this be fucking called ever" << std::endl;
-            return -1;
+            std::cerr << "under no circumstances should this be called ever" << std::endl;
         };
-        virtual material get_material() const {}
-        virtual vec3 get_normal(point3 point) const {}
+        virtual material get_material() const {
+            std::cerr << "under no circumstances should this be called ever" << std::endl;
+        }
+        virtual vec3 get_normal(point3 point) const {
+            std::cerr << "under no circumstances should this be called ever" << std::endl;
+        }
 
         virtual ~shape() = default;
         

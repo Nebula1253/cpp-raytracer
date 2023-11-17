@@ -30,9 +30,14 @@ color ray_color(const ray& r) {
                 return color(1,0,0);
             }
             else if (renderMode == "phong") {
+                // vec3 N = currentShape->get_normal(r.at(intersect));
+                // return 0.5*color(N.x()+1, N.y()+1, N.z()+1);
                 // return currentShape->get_material().get_diffuse_color(); // just to check
-                auto pointOnSurface = r.at(intersect);
-                color ambient = color(0,0,0);
+                point3 pointOnSurface = r.at(intersect);
+                color pointColor = color(0,0,0);
+
+                // ambient light term
+                pointColor = pointColor + 0.5 * currentShape->get_material().get_diffuse_color();
                 for (int j = 0; j < sce.getLights().size(); ++j) {
                     auto currentLight = sce.getLights()[j];
                     // std::cerr << "currentLight: " << currentLight->getPosition() << "\n";
@@ -47,12 +52,11 @@ color ray_color(const ray& r) {
 
                     vec3 lightVector = unit_vector(currentLight->getPosition() - pointOnSurface);
                     vec3 normalVector = currentShape->get_normal(pointOnSurface);
-                    vec3 viewVector = unit_vector(cam.getPosition() - pointOnSurface);
+                    vec3 viewVector = unit_vector(r.origin() - pointOnSurface);
 
                     // vec3 reflectionVector = unit_vector(2 * (dot(lightVector, normalVector)) * normalVector - lightVector);
 
-                    // auto lightNormalDot = std::max(dot(lightVector, normalVector), 0.0);
-                    auto lightNormalDot = dot(lightVector, normalVector);
+                    auto lightNormalDot = std::max(dot(lightVector, normalVector), 0.0);
 
                     // Term used in phong
                     // auto viewReflectionDot = std::max(dot(viewVector, reflectionVector), 0.0);
@@ -62,31 +66,18 @@ color ray_color(const ray& r) {
                     vec3 halfwayVector = unit_vector(lightVector + viewVector);
                     auto normalHalfwayDot = std::max(dot(normalVector, halfwayVector), 0.0);
 
-                    auto diffuseColor = kd * lightNormalDot * materialDiffuseColor * lightIntensity;
+                    color diffuseColor = kd * lightNormalDot * materialDiffuseColor * lightIntensity;
+                    // std::cerr << "diffuseColor: " << diffuseColor << "\n";
 
                     // phong term
                     // auto specularColor = ks * pow(viewReflectionDot, specularExponent) * materialSpecularColor * lightIntensity;
 
                     // blinn-phong term
-                    auto specularColor = ks * pow(normalHalfwayDot, specularExponent) * materialSpecularColor * lightIntensity;
-                    ambient = ambient + diffuseColor + specularColor;
+                    color specularColor = ks * pow(normalHalfwayDot, specularExponent) * materialSpecularColor * lightIntensity;
 
-                    // std::vector<double> colour(3);
-                    // for (int k = 0; k < 3; ++k) {
-                    //     auto diffuseTerm = kd * materialDiffuse[k] * lightIntensity[k] * lightNormalDot;
-                    //     std::cerr << "diffuseTerm: " << diffuseTerm << "\n";
-
-                    //     // phong term
-                    //     auto specularTerm = ks * materialSpecular[k] * lightIntensity[k] * pow(viewReflectionDot, specularExponent);
-
-                    //     // blinn-phong term
-                    //     // auto specularTerm = ks * materialSpecular[k] * lightIntensity[k] * pow(viewHalfwayDot, specularExponent);
-                    //     colour[k] = diffuseTerm + specularTerm;
-                    // }
-                    // color phongColor(colour[0], colour[1], colour[2]);
-                    // ambient += phongColor;
+                    pointColor = pointColor + diffuseColor + specularColor;
                 }
-                return ambient;
+                return pointColor;
             }
         } 
     }
@@ -114,7 +105,7 @@ material parse_material(const json& j) {
     color specularColor = color(specular[0], specular[1], specular[2]);
 
     material mat = material(ks, kd, reflectivity, refractiveIndex, specularExponent, 
-                            diffuseColor, specularColor, isReflective, isRefractive);\
+                            diffuseColor, specularColor, isReflective, isRefractive);
     return mat;
 }
 
