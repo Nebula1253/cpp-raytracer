@@ -16,65 +16,81 @@ using json = nlohmann::json;
 #include <iostream>
 
 std::string renderMode;
+camera cam;
+scene sce;
 
-color ray_color(const ray& r, scene& s, vec3 cameraPosition) {
+color ray_color(const ray& r) {
     // seems dependent on the order of the shapes in the scene object, rather than which is actually closest to the camera
 
-    for (int i = 0; i < s.getShapes().size(); ++i) {
-        shape* currentShape = s.getShapes()[i];
+    for (int i = 0; i < sce.getShapes().size(); ++i) {
+        shape* currentShape = sce.getShapes()[i];
         double intersect = currentShape->intersection(r);
         if (intersect != -1) {
             if (renderMode == "binary") {
                 return color(1,0,0);
             }
             else if (renderMode == "phong") {
-                return currentShape->get_material().get_diffuse_color(); // just to check
-                // auto pointOnSurface = r.at(intersect);
-                // color ambient = color(0,0,0);
-                // for (int j = 0; j < s.getLights().size(); ++j) {
-                //     auto currentLight = s.getLights()[j];
+                // return currentShape->get_material().get_diffuse_color(); // just to check
+                auto pointOnSurface = r.at(intersect);
+                color ambient = color(0,0,0);
+                for (int j = 0; j < sce.getLights().size(); ++j) {
+                    auto currentLight = sce.getLights()[j];
+                    // std::cerr << "currentLight: " << currentLight->getPosition() << "\n";
+                    color lightIntensity = currentLight->getIntensity();
 
-                //     auto kd = currentShape->get_material().get_kd();
-                //     auto ks = currentShape->get_material().get_ks();
-                //     auto specularExponent = currentShape->get_material().get_specular_exponent();
-                //     color materialDiffuse = currentShape->get_material().get_diffuse_color();
-                //     color materialSpecular = currentShape->get_material().get_specular_color();
+                    auto kd = currentShape->get_material().get_kd();
+                    auto ks = currentShape->get_material().get_ks();
+                    auto specularExponent = currentShape->get_material().get_specular_exponent();
 
-                //     vec3 lightVector = unit_vector(currentLight->getPosition() - pointOnSurface);
-                //     vec3 normalVector = currentShape->get_normal(pointOnSurface);
-                //     vec3 viewVector = unit_vector(cameraPosition - pointOnSurface);
+                    color materialDiffuseColor = currentShape->get_material().get_diffuse_color();
+                    color materialSpecularColor = currentShape->get_material().get_specular_color();
 
-                //     // vec3 reflectionVector = unit_vector(2 * (dot(lightVector, normalVector)) * normalVector - lightVector);
+                    vec3 lightVector = unit_vector(currentLight->getPosition() - pointOnSurface);
+                    vec3 normalVector = currentShape->get_normal(pointOnSurface);
+                    vec3 viewVector = unit_vector(cam.getPosition() - pointOnSurface);
 
-                //     color lightIntensity = currentLight->getIntensity();
-                //     auto lightNormalDot = std::max(dot(lightVector, normalVector), 0.0);
+                    // vec3 reflectionVector = unit_vector(2 * (dot(lightVector, normalVector)) * normalVector - lightVector);
 
-                //     // Term used in phong
-                //     // auto viewReflectionDot = std::max(dot(viewVector, reflectionVector), 0.0);
+                    // auto lightNormalDot = std::max(dot(lightVector, normalVector), 0.0);
+                    auto lightNormalDot = dot(lightVector, normalVector);
 
-                //     // Term used in blinn-phong
-                //     vec3 halfwayVector = unit_vector(lightVector + viewVector);
-                //     auto viewHalfwayDot = std::max(dot(viewVector, halfwayVector), 0.0);
+                    // Term used in phong
+                    // auto viewReflectionDot = std::max(dot(viewVector, reflectionVector), 0.0);
+                    // auto viewReflectionDot = dot(reflectionVector, viewVector);
 
-                //     std::vector<double> colour(3);
-                //     for (int k = 0; k < 3; ++k) {
-                //         auto diffuseTerm = kd * materialDiffuse[k] * lightIntensity[k] * lightNormalDot;
+                    // Term used in blinn-phong
+                    vec3 halfwayVector = unit_vector(lightVector + viewVector);
+                    auto normalHalfwayDot = std::max(dot(normalVector, halfwayVector), 0.0);
 
-                //         // phong term
-                //         // auto specularTerm = ks * materialSpecular[k] * lightIntensity[k] * pow(viewReflectionDot, specularExponent);
+                    auto diffuseColor = kd * lightNormalDot * materialDiffuseColor * lightIntensity;
 
-                //         // blinn-phong term
-                //         auto specularTerm = ks * materialSpecular[k] * lightIntensity[k] * pow(viewHalfwayDot, specularExponent);
-                //         colour[k] = diffuseTerm + specularTerm;
-                //     }
-                //     color phongColor(colour[0], colour[1], colour[2]);
-                //     ambient += phongColor;
-                // }
-                // return ambient;
+                    // phong term
+                    // auto specularColor = ks * pow(viewReflectionDot, specularExponent) * materialSpecularColor * lightIntensity;
+
+                    // blinn-phong term
+                    auto specularColor = ks * pow(normalHalfwayDot, specularExponent) * materialSpecularColor * lightIntensity;
+                    ambient = ambient + diffuseColor + specularColor;
+
+                    // std::vector<double> colour(3);
+                    // for (int k = 0; k < 3; ++k) {
+                    //     auto diffuseTerm = kd * materialDiffuse[k] * lightIntensity[k] * lightNormalDot;
+                    //     std::cerr << "diffuseTerm: " << diffuseTerm << "\n";
+
+                    //     // phong term
+                    //     auto specularTerm = ks * materialSpecular[k] * lightIntensity[k] * pow(viewReflectionDot, specularExponent);
+
+                    //     // blinn-phong term
+                    //     // auto specularTerm = ks * materialSpecular[k] * lightIntensity[k] * pow(viewHalfwayDot, specularExponent);
+                    //     colour[k] = diffuseTerm + specularTerm;
+                    // }
+                    // color phongColor(colour[0], colour[1], colour[2]);
+                    // ambient += phongColor;
+                }
+                return ambient;
             }
         } 
     }
-    return s.getBackgroundColor();
+    return sce.getBackgroundColor();
 }
 
 material parse_material(const json& j) {
@@ -102,7 +118,7 @@ material parse_material(const json& j) {
     return mat;
 }
 
-camera parse_camera_params(const json& j) {
+void parse_camera_params(const json& j) {
     // generated by copilot line by line
     auto cameraPos = j["position"].get<std::vector<double>>();
     point3 cameraPosition(cameraPos[0], cameraPos[1], cameraPos[2]);
@@ -119,11 +135,11 @@ camera parse_camera_params(const json& j) {
 
     // implement the exposure once that's something you actually have to care about lol
 
-    camera cam = camera(cameraWidth, cameraHeight, cameraPosition, cameraLookAtVector, cameraUpVector, cameraFov, 1.0);
-    return cam;
+    cam = camera(cameraWidth, cameraHeight, cameraPosition, cameraLookAtVector, cameraUpVector, cameraFov, 1.0);
+    // return cam;
 }
 
-scene parse_scene_params(const json& j) {
+void parse_scene_params(const json& j) {
     // Parse scene parameters
     // following 2 lines generated by copilot
     auto sceneBackgroundColorData = j["backgroundcolor"].get<std::vector<double>>();
@@ -132,10 +148,11 @@ scene parse_scene_params(const json& j) {
     std::vector<pointlight*> lightsources;
     if (renderMode != "binary") {
         auto sceneLightSources = j["lightsources"];
-        std::vector<pointlight*> lightsources;
+        std::cerr << "sceneLightSources: " << sceneLightSources << "\n";
         if (!j["lightsources"].is_null()) {
             for (int i = 0; i < sceneLightSources.size(); ++i) {
                 auto light = sceneLightSources[i];
+                
                 auto lightPosition = light["position"].get<std::vector<double>>();
                 point3 lightPositionPoint(lightPosition[0], lightPosition[1], lightPosition[2]);
 
@@ -143,6 +160,7 @@ scene parse_scene_params(const json& j) {
                 color lightIntensityColor(lightIntensity[0], lightIntensity[1], lightIntensity[2]);
 
                 pointlight* l = new pointlight(lightPositionPoint, lightIntensityColor);
+                
                 lightsources.push_back(l);
             }
         }
@@ -154,25 +172,26 @@ scene parse_scene_params(const json& j) {
     for (int i = 0; i < sceneShapes.size(); ++i) {
         auto shapeType = sceneShapes[i]["type"].get<std::string>();
 
+        material mat;
+        if (!sceneShapes[i]["material"].is_null()) {
+            mat = parse_material(sceneShapes[i]["material"]);
+        }
+
         // generated by copilot
         if (shapeType == "sphere") {
+            sphere* s;
             auto sphereCenter = sceneShapes[i]["center"].get<std::vector<double>>();
             point3 sphereCenterPoint(sphereCenter[0], sphereCenter[1], sphereCenter[2]);
 
             auto sphereRadius = sceneShapes[i]["radius"].get<double>();
 
             if (!sceneShapes[i]["material"].is_null()) {
-                auto sphereMaterial = sceneShapes[i]["material"];
-
-                material mat = parse_material(sphereMaterial);
-
-                sphere* s = new sphere(sphereCenterPoint, mat, sphereRadius);
-                shapes.push_back(s);
+                s = new sphere(sphereCenterPoint, mat, sphereRadius);
             }
             else {
-                sphere* s = new sphere(sphereCenterPoint, sphereRadius);
-                shapes.push_back(s);
+                s = new sphere(sphereCenterPoint, sphereRadius);
             }
+            shapes.push_back(s);
         }
         else if (shapeType == "triangle") {
             auto v0 = sceneShapes[i]["v0"].get<std::vector<double>>();
@@ -184,20 +203,14 @@ scene parse_scene_params(const json& j) {
             auto v2 = sceneShapes[i]["v2"].get<std::vector<double>>();
             point3 v2Point(v2[0], v2[1], v2[2]);
 
+            triangle* tri;
             if (!sceneShapes[i]["material"].is_null()) {
-                auto sphereMaterial = sceneShapes[i]["material"];
-
-                material mat = parse_material(sphereMaterial);
-
-                // sphere* s = new sphere(sphereCenterPoint, mat, sphereRadius);
-                triangle* tri = new triangle(v0Point, v1Point, v2Point, mat);
-                shapes.push_back(tri);
+                tri = new triangle(v0Point, v1Point, v2Point, mat);
             }
             else {
-                // sphere* s = new sphere(sphereCenterPoint, sphereRadius);
-                triangle* tri = new triangle(v0Point, v1Point, v2Point);
-                shapes.push_back(tri);
+                tri = new triangle(v0Point, v1Point, v2Point);
             }
+            shapes.push_back(tri);
         }
         else if (shapeType == "cylinder") {
             auto cylinderCenter = sceneShapes[i]["center"].get<std::vector<double>>();
@@ -209,23 +222,18 @@ scene parse_scene_params(const json& j) {
             auto cylinderRadius = sceneShapes[i]["radius"].get<double>();
             auto cylinderHeight = sceneShapes[i]["height"].get<double>();
 
+            cylinder* cyl;
             if (!sceneShapes[i]["material"].is_null()) {
-                auto sphereMaterial = sceneShapes[i]["material"];
-
-                material mat = parse_material(sphereMaterial);
-
-                cylinder* cyl = new cylinder(cylinderCenterPoint, cylinderAxisVector, mat, cylinderRadius, cylinderHeight);
-                shapes.push_back(cyl);
+                cyl = new cylinder(cylinderCenterPoint, cylinderAxisVector, mat, cylinderRadius, cylinderHeight);
             }
             else {
-                cylinder* cyl = new cylinder(cylinderCenterPoint, cylinderAxisVector, cylinderRadius, cylinderHeight);
-                shapes.push_back(cyl);
+                cyl = new cylinder(cylinderCenterPoint, cylinderAxisVector, cylinderRadius, cylinderHeight);
             }
+            shapes.push_back(cyl);
         }
     }
 
-    scene sce = scene(sceneBackgroundColor, shapes, lightsources);
-    return sce;
+    sce = scene(sceneBackgroundColor, shapes, lightsources);
 }
 
 
@@ -243,10 +251,10 @@ int main(int argc, char *argv[]) {
     renderMode = j["rendermode"].get<std::string>();
 
     // Parse camera parameters
-    camera cam = parse_camera_params(j["camera"]);
+    parse_camera_params(j["camera"]);
 
     // Parse scene parameters
-    scene sce = parse_scene_params(j["scene"]);
+    parse_scene_params(j["scene"]);
 
     // Render
     std::cout << "P3\n" << cam.getWidth() << ' ' << cam.getHeight() << "\n255\n";
@@ -258,7 +266,7 @@ int main(int argc, char *argv[]) {
             auto ray_direction = pixel_center - cam.getPosition();
             ray r(cam.getPosition(), ray_direction);
             
-            color pixel_color = ray_color(r, sce, cam.getPosition());
+            color pixel_color = ray_color(r);
             write_color(std::cout, pixel_color);
         }
     }

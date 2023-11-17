@@ -13,6 +13,8 @@ class scene {
         std::vector<pointlight*> lightsources;
 
     public:
+        scene() {};
+        
         scene(color background_color, std::vector<shape*> shapes) : 
             background_color(background_color), 
             shapes(shapes){};
