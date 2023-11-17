@@ -53,13 +53,14 @@ class cylinder : public shape {
                 curvedSurfaceIntersection = ((m1 <= 2*height && m1 >= 0) || (m2 <= 2*height && m2 >= 0));
                 if (curvedSurfaceIntersection) {
                     //copilot again
+                    if (t0 < 0 && t1 < 0) return -1;
                     if (t0 < 0) return t1;
                     if (t1 < 0) return t0;
                     return (t0 < t1) ? t0 : t1;
                 }
             }
             
-            // IMPLEMENT PLANE INTERSECTIONS AT CAPS LOL
+            // Top and bottom cap intersection
             // largely generated line-by-line by copilot, when i had a ray-disk intersection tutorial open in chrome
             auto plane1point = bottom;
             auto plane2point = center + (axis * height);
@@ -83,6 +84,8 @@ class cylinder : public shape {
                 if (t2 < 0) return t1;
                 return (t1 < t2) ? t1 : t2;
             }
+
+            return -1;
             // return (curvedSurfaceIntersection || capsIntersection);
         }
 

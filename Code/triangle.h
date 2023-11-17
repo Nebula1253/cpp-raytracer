@@ -75,7 +75,7 @@ class triangle : public shape {
             a = dot(edge1, h);
 
             if (a > -EPSILON && a < EPSILON)
-                return false;    // This ray is parallel to this triangle.
+                return -1;    // This ray is parallel to this triangle.
 
             f = 1.0 / a;
             s = r.origin() - vertex0;
@@ -83,7 +83,7 @@ class triangle : public shape {
             u = f * dot(s,h);
 
             if (u < 0.0 || u > 1.0)
-                return false;
+                return -1;
 
             // q = s.crossProduct(edge1);
             q = cross(s, edge1);
@@ -91,7 +91,7 @@ class triangle : public shape {
             v = f * dot(r.direction(), q);
 
             if (v < 0.0 || u + v > 1.0)
-                return false;
+                return -1;
 
             // At this stage we can compute t to find out where the intersection point is on the line.
             // float t = f * edge2.dotProduct(q);

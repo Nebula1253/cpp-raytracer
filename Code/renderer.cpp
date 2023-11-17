@@ -18,6 +18,8 @@ using json = nlohmann::json;
 std::string renderMode;
 
 color ray_color(const ray& r, scene& s, vec3 cameraPosition) {
+    // seems dependent on the order of the shapes in the scene object, rather than which is actually closest to the camera
+
     for (int i = 0; i < s.getShapes().size(); ++i) {
         shape* currentShape = s.getShapes()[i];
         double intersect = currentShape->intersection(r);
@@ -26,45 +28,49 @@ color ray_color(const ray& r, scene& s, vec3 cameraPosition) {
                 return color(1,0,0);
             }
             else if (renderMode == "phong") {
-                auto pointOnSurface = r.at(intersect);
-                color ambient = color(0,0,0);
-                for (int j = 0; j < s.getLights().size(); ++j) {
-                    auto kd = currentShape->get_material().get_kd();
-                    auto ks = currentShape->get_material().get_ks();
-                    auto specularExponent = currentShape->get_material().get_specular_exponent();
-                    color materialDiffuse = currentShape->get_material().get_diffuse_color();
-                    color materialSpecular = currentShape->get_material().get_specular_color();
+                return currentShape->get_material().get_diffuse_color(); // just to check
+                // auto pointOnSurface = r.at(intersect);
+                // color ambient = color(0,0,0);
+                // for (int j = 0; j < s.getLights().size(); ++j) {
+                //     auto currentLight = s.getLights()[j];
 
-                    vec3 lightVector = unit_vector(s.getLights()[j]->getPosition() - pointOnSurface);
-                    vec3 normalVector = currentShape->get_normal(pointOnSurface);
-                    vec3 viewVector = unit_vector(cameraPosition - pointOnSurface);
+                //     auto kd = currentShape->get_material().get_kd();
+                //     auto ks = currentShape->get_material().get_ks();
+                //     auto specularExponent = currentShape->get_material().get_specular_exponent();
+                //     color materialDiffuse = currentShape->get_material().get_diffuse_color();
+                //     color materialSpecular = currentShape->get_material().get_specular_color();
 
-                    vec3 reflectionVector = unit_vector(2 * (dot(lightVector, normalVector)) * normalVector - lightVector);
+                //     vec3 lightVector = unit_vector(currentLight->getPosition() - pointOnSurface);
+                //     vec3 normalVector = currentShape->get_normal(pointOnSurface);
+                //     vec3 viewVector = unit_vector(cameraPosition - pointOnSurface);
 
-                    color lightIntensity = s.getLights()[j]->getIntensity();
-                    auto lightNormalDot = std::max(dot(lightVector, normalVector), 0.0);
+                //     // vec3 reflectionVector = unit_vector(2 * (dot(lightVector, normalVector)) * normalVector - lightVector);
 
-                    // Term used in phong
-                    auto viewReflectionDot = std::max(dot(viewVector, reflectionVector), 0.0);
+                //     color lightIntensity = currentLight->getIntensity();
+                //     auto lightNormalDot = std::max(dot(lightVector, normalVector), 0.0);
 
-                    // Term used in blinn-phong
-                    vec3 halfwayVector = unit_vector(lightVector + viewVector);
-                    auto viewHalfwayDot = std::max(dot(viewVector, halfwayVector), 0.0);
+                //     // Term used in phong
+                //     // auto viewReflectionDot = std::max(dot(viewVector, reflectionVector), 0.0);
 
-                    std::vector<double> colour(3);
-                    for (int k = 0; k < 3; ++k) {
-                        auto diffuseTerm = kd * materialDiffuse[k] * lightIntensity[k] * lightNormalDot;
+                //     // Term used in blinn-phong
+                //     vec3 halfwayVector = unit_vector(lightVector + viewVector);
+                //     auto viewHalfwayDot = std::max(dot(viewVector, halfwayVector), 0.0);
 
-                        // phong term
-                        auto specularTerm = ks * materialSpecular[k] * lightIntensity[k] * pow(viewReflectionDot, specularExponent);
+                //     std::vector<double> colour(3);
+                //     for (int k = 0; k < 3; ++k) {
+                //         auto diffuseTerm = kd * materialDiffuse[k] * lightIntensity[k] * lightNormalDot;
 
-                        // blinn-phong term
-                        // auto specularTerm = ks * materialSpecular[k] * lightIntensity[k] * pow(viewHalfwayDot, specularExponent);
-                        colour[k] = diffuseTerm + specularTerm;
-                    }
-                    color phongColor(colour[0], colour[1], colour[2]);
-                    ambient += phongColor;
-                }
+                //         // phong term
+                //         // auto specularTerm = ks * materialSpecular[k] * lightIntensity[k] * pow(viewReflectionDot, specularExponent);
+
+                //         // blinn-phong term
+                //         auto specularTerm = ks * materialSpecular[k] * lightIntensity[k] * pow(viewHalfwayDot, specularExponent);
+                //         colour[k] = diffuseTerm + specularTerm;
+                //     }
+                //     color phongColor(colour[0], colour[1], colour[2]);
+                //     ambient += phongColor;
+                // }
+                // return ambient;
             }
         } 
     }
