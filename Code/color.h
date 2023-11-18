@@ -8,11 +8,11 @@
 
 using color = vec3;
 
-void write_color(std::ostream &out, color pixel_color) {
+void write_color(std::ostream &out, color pixel_color, double max_color_value = 255.999) {
     // Write the translated [0,255] value of each color component - the pixel color here is a vec3 with values in [0,1]
-    out << static_cast<int>(255.999 * pixel_color.x()) << ' '
-        << static_cast<int>(255.999 * pixel_color.y()) << ' '
-        << static_cast<int>(255.999 * pixel_color.z()) << '\n';
+    out << static_cast<int>(max_color_value * pixel_color.x()) << ' '
+        << static_cast<int>(max_color_value * pixel_color.y()) << ' '
+        << static_cast<int>(max_color_value * pixel_color.z()) << '\n';
 }
 
 #endif
