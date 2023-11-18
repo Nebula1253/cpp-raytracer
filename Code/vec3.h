@@ -105,34 +105,4 @@ inline vec3 unit_vector(vec3 v) {
     return v / v.length();
 }
 
-inline void rotationMatrix(const vec3& u, const vec3& v, double result[3][3]) {
-    // taken from ChatGPT
-    vec3 unitU = unit_vector(u);
-    vec3 unitV = unit_vector(v);
-
-    vec3 planeUVNorm = unit_vector(cross(unitU, unitV));
-    double theta = acos(dot(unitU, unitV));
-
-    double skewSymmetricK[3][3] = {
-        {0, -planeUVNorm.z(), planeUVNorm.y()},
-        {planeUVNorm.z(), 0, -planeUVNorm.x()},
-        {-planeUVNorm.y(), planeUVNorm.x(), 0}
-    };
-
-    double identity[3][3] = {
-        {1, 0, 0},
-        {0, 1, 0},
-        {0, 0, 1}
-    };
-
-    for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j) {
-            result[i][j] = cos(theta) * identity[i][j] +
-                           (1 - cos(theta)) * skewSymmetricK[i][j] +
-                           sin(theta) * skewSymmetricK[i][j];
-            __isnan(result[i][j]) ? result[i][j] = 0 : result[i][j] = result[i][j];
-        }
-    }
-}
-
 #endif

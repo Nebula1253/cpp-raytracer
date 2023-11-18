@@ -36,8 +36,10 @@ color ray_color(const ray& r) {
                 point3 pointOnSurface = r.at(intersect);
                 color pointColor = color(0,0,0);
 
-                // ambient light term
+                // ambient light term - completely arbitrary
                 pointColor = pointColor + 0.5 * currentShape->get_material().get_diffuse_color();
+
+                // diffuse and specular light term
                 for (int j = 0; j < sce.getLights().size(); ++j) {
                     auto currentLight = sce.getLights()[j];
                     // std::cerr << "currentLight: " << currentLight->getPosition() << "\n";
@@ -54,25 +56,12 @@ color ray_color(const ray& r) {
                     vec3 normalVector = currentShape->get_normal(pointOnSurface);
                     vec3 viewVector = unit_vector(r.origin() - pointOnSurface);
 
-                    // vec3 reflectionVector = unit_vector(2 * (dot(lightVector, normalVector)) * normalVector - lightVector);
-
                     auto lightNormalDot = std::max(dot(lightVector, normalVector), 0.0);
 
-                    // Term used in phong
-                    // auto viewReflectionDot = std::max(dot(viewVector, reflectionVector), 0.0);
-                    // auto viewReflectionDot = dot(reflectionVector, viewVector);
-
-                    // Term used in blinn-phong
                     vec3 halfwayVector = unit_vector(lightVector + viewVector);
                     auto normalHalfwayDot = std::max(dot(normalVector, halfwayVector), 0.0);
 
                     color diffuseColor = kd * lightNormalDot * materialDiffuseColor * lightIntensity;
-                    // std::cerr << "diffuseColor: " << diffuseColor << "\n";
-
-                    // phong term
-                    // auto specularColor = ks * pow(viewReflectionDot, specularExponent) * materialSpecularColor * lightIntensity;
-
-                    // blinn-phong term
                     color specularColor = ks * pow(normalHalfwayDot, specularExponent) * materialSpecularColor * lightIntensity;
 
                     pointColor = pointColor + diffuseColor + specularColor;
