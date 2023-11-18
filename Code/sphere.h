@@ -51,4 +51,21 @@ class sphere : public shape {
         vec3 get_normal(point3 point) const override {
             return unit_vector(point - center);
         }
+
+        color get_diffuse_color(point3 point) const override {
+            if (!mat.get_has_texture()) {
+                return mat.get_diffuse_color();
+            }
+            else {
+                vec3 thingy = unit_vector(point - center);
+                
+                auto phi = atan2(-thingy.z(), thingy.x()) + (2 * M_PI);
+                auto theta = acos(-thingy.y());
+
+                auto u = phi / (2 * M_PI);
+                auto v = theta / M_PI;
+
+                return mat.get_texture().get_color_at_pixel(u, v);
+            }
+        }
 };

@@ -70,6 +70,15 @@ class image {
         int get_height() const { return height; }
         std::vector<color> get_pixels() const { return pixels; }
 
+        color get_color_at_pixel(int x, int y) const { 
+            return pixels[x + (y * width)];
+        }
+        color get_color_at_pixel(double x, double y) const {
+            auto x = std::min(static_cast<int>(x * width), width - 1);
+            auto y = std::min(static_cast<int>(y * height), height - 1);
+            return get_color_at_pixel(x, y);
+        }
+
         void write_to_file(std::string filename) {
             std::ofstream file;
             file.open(filename);

@@ -18,6 +18,9 @@ class shape {
         virtual vec3 get_normal(point3 point) const {
             std::cerr << "under no circumstances should this be called ever" << std::endl;
         }
+        virtual color get_diffuse_color(point3 point) const {
+            std::cerr << "under no circumstances should this be called ever" << std::endl;
+        }
 
         virtual ~shape() = default;
         
