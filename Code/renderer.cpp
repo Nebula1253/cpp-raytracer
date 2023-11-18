@@ -41,55 +41,68 @@ bool in_shadow(const point3& point, int shapeIndex) {
 }
 
 color ray_color(const ray& r) {
-    // seems dependent on the order of the shapes in the scene object, rather than which is actually closest to the camera
+    shape* closestShape;
+    int closestShapeIndex;
+    double closestIntersection = -1;
 
     for (int i = 0; i < sce.getShapes().size(); ++i) {
         shape* currentShape = sce.getShapes()[i];
         double intersect = currentShape->intersection(r);
         if (intersect != -1) {
-            if (renderMode == "binary") {
-                return color(1,0,0);
-            }
-            else if (renderMode == "phong") {
-                point3 pointOnSurface = r.at(intersect);
-
-                // ambient light term - completely arbitrary
-                color pointColor = 0.4 * currentShape->get_material().get_diffuse_color();
-
-                if (!in_shadow(pointOnSurface, i)) {
-                    // diffuse and specular light term
-                    for (int j = 0; j < sce.getLights().size(); ++j) {
-                        auto currentLight = sce.getLights()[j];
-                        // std::cerr << "currentLight: " << currentLight->getPosition() << "\n";
-                        color lightIntensity = currentLight->getIntensity();
-
-                        auto kd = currentShape->get_material().get_kd();
-                        auto ks = currentShape->get_material().get_ks();
-                        auto specularExponent = currentShape->get_material().get_specular_exponent();
-
-                        color materialDiffuseColor = currentShape->get_material().get_diffuse_color();
-                        color materialSpecularColor = currentShape->get_material().get_specular_color();
-
-                        vec3 lightVector = unit_vector(currentLight->getPosition() - pointOnSurface);
-                        vec3 normalVector = currentShape->get_normal(pointOnSurface);
-                        vec3 viewVector = unit_vector(r.origin() - pointOnSurface);
-
-                        auto lightNormalDot = std::max(dot(lightVector, normalVector), 0.0);
-
-                        vec3 halfwayVector = unit_vector(lightVector + viewVector);
-                        auto normalHalfwayDot = std::max(dot(normalVector, halfwayVector), 0.0);
-
-                        color diffuseColor = kd * lightNormalDot * materialDiffuseColor * lightIntensity;
-                        color specularColor = ks * pow(normalHalfwayDot, specularExponent) * materialSpecularColor * lightIntensity;
-
-                        pointColor = pointColor + diffuseColor + specularColor;
-                    }
-                }
-                
-                return pointColor;
+            if (intersect < closestIntersection || closestIntersection == -1) {
+                closestIntersection = intersect;
+                closestShape = currentShape;
+                closestShapeIndex = i;
             }
         } 
     }
+
+    if (closestIntersection == -1) {
+        return sce.getBackgroundColor();
+    }
+    
+    if (renderMode == "binary") {
+        return color(1,0,0);
+    }
+    else if (renderMode == "phong") {
+        point3 pointOnSurface = r.at(closestIntersection);
+
+        // ambient light term - completely arbitrary
+        color pointColor = 0.4 * closestShape->get_material().get_diffuse_color();
+
+        if (!in_shadow(pointOnSurface, closestShapeIndex)) {
+            // diffuse and specular light term
+            for (int j = 0; j < sce.getLights().size(); ++j) {
+                auto currentLight = sce.getLights()[j];
+                // std::cerr << "currentLight: " << currentLight->getPosition() << "\n";
+                color lightIntensity = currentLight->getIntensity();
+
+                auto kd = closestShape->get_material().get_kd();
+                auto ks = closestShape->get_material().get_ks();
+                auto specularExponent = closestShape->get_material().get_specular_exponent();
+
+                color materialDiffuseColor = closestShape->get_material().get_diffuse_color();
+                color materialSpecularColor = closestShape->get_material().get_specular_color();
+
+                vec3 lightVector = unit_vector(currentLight->getPosition() - pointOnSurface);
+                vec3 normalVector = closestShape->get_normal(pointOnSurface);
+                vec3 viewVector = unit_vector(r.origin() - pointOnSurface);
+
+                auto lightNormalDot = std::max(dot(lightVector, normalVector), 0.0);
+
+                vec3 halfwayVector = unit_vector(lightVector + viewVector);
+                auto normalHalfwayDot = std::max(dot(normalVector, halfwayVector), 0.0);
+
+                color diffuseColor = kd * lightNormalDot * materialDiffuseColor * lightIntensity;
+                color specularColor = ks * pow(normalHalfwayDot, specularExponent) * materialSpecularColor * lightIntensity;
+
+                pointColor = pointColor + diffuseColor + specularColor;
+            }
+        }
+                
+        return pointColor;
+    }
+        
     return sce.getBackgroundColor();
 }
 
