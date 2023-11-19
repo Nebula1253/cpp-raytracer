@@ -101,6 +101,10 @@ class cylinder : public shape {
             auto n = unit_vector(point - p);
             return n;
         }
+
+        color get_diffuse_color(point3 point) const override {
+            return mat.get_diffuse_color();
+        }
 };
 
 #endif

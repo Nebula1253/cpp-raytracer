@@ -84,12 +84,12 @@ color ray_color(const ray& r, int recursionDepth = 0) {
                 return closestShape->get_material().get_reflectivity() * reflectedColor;
             }
             if (closestShape->get_material().get_is_refractive()) {
-                
+
             }
         }
         
         // ambient light term - completely arbitrary
-        color pointColor = 0.4 * closestShape->get_material().get_diffuse_color();
+        color pointColor = 0.4 * closestShape->get_diffuse_color(pointOnSurface);
 
         if (!in_shadow(pointOnSurface, closestShapeIndex)) {
             // diffuse and specular light term
@@ -102,7 +102,7 @@ color ray_color(const ray& r, int recursionDepth = 0) {
                 auto ks = closestShape->get_material().get_ks();
                 auto specularExponent = closestShape->get_material().get_specular_exponent();
 
-                color materialDiffuseColor = closestShape->get_material().get_diffuse_color();
+                color materialDiffuseColor = closestShape->get_diffuse_color(pointOnSurface);
                 color materialSpecularColor = closestShape->get_material().get_specular_color();
 
                 vec3 lightVector = unit_vector(currentLight->getPosition() - pointOnSurface);
@@ -146,6 +146,13 @@ material parse_material(const json& j) {
 
     auto specular = j["specularcolor"].get<std::vector<double>>();
     color specularColor = color(specular[0], specular[1], specular[2]);
+
+    if (j.contains("texturefile")) {
+        auto textureFilename = j["texturefile"].get<std::string>();
+        material mat = material(ks, kd, reflectivity, refractiveIndex, specularExponent, 
+                            diffuseColor, specularColor, isReflective, isRefractive, textureFilename);
+        return mat;
+    }
 
     material mat = material(ks, kd, reflectivity, refractiveIndex, specularExponent, 
                             diffuseColor, specularColor, isReflective, isRefractive);
@@ -308,4 +315,7 @@ int main(int argc, char *argv[]) {
     }
 
     std::clog << "\rDone.                 \n";
+
+    image checkerboard = image(filepath + "Textures/Checkerboard.ppm");
+    checkerboard.write_to_file(filepath + "Textures/checkerboard_test.ppm");
 }

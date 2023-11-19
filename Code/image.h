@@ -15,7 +15,6 @@ class image {
         image(int width, int height, std::vector<color> pixels) : width(width), height(height), pixels(pixels), maxColorValue(255.999) {};
         image(std::string filename) {
             //assuming a ppm image, which starts with P(something), followed by width and height, followed by max color value, followed by the pixels
-            int maxColorValue;
 
             std::ifstream file;
             file.open(filename);
@@ -52,15 +51,38 @@ class image {
 
                 // if we get here, we're in the pixels section
                 // generated line-by-line by copilot
-                std::string rStr = line.substr(0, line.find(' '));
-                std::string gStr = line.substr(line.find(' ') + 1, line.find_last_of(' '));
-                std::string bStr = line.substr(line.find_last_of(' ') + 1);
+                // std::string rStr = line.substr(0, line.find(' '));
+                // std::string gStr = line.substr(line.find(' ') + 1, line.find_last_of(' '));
+                // std::string bStr = line.substr(line.find_last_of(' ') + 1);
 
-                double r = std::stoi(rStr) / static_cast<double>(maxColorValue);
-                double g = std::stoi(gStr) / static_cast<double>(maxColorValue);
-                double b = std::stoi(bStr) / static_cast<double>(maxColorValue);
+                // double r = std::stoi(rStr) / static_cast<double>(maxColorValue);
+                // double g = std::stoi(gStr) / static_cast<double>(maxColorValue);
+                // double b = std::stoi(bStr) / static_cast<double>(maxColorValue);
 
-                pixels.push_back(color(r, g, b));
+                // pixels.push_back(color(r, g, b));
+
+
+                // the file is a list of numbers separated by varying amounts of whitespace and newlines, 
+                // so read them all into a vector of ints
+                std::vector<int> pixelValues;
+                std::string currentPixelValue = "";
+                for (int i = 0; i < line.length(); i++) {
+                    if (line[i] == ' ' || line[i] == '\n') {
+                        if (currentPixelValue != "") {
+                            pixelValues.push_back(std::stoi(currentPixelValue));
+                            currentPixelValue = "";
+                        }
+                    } else {
+                        currentPixelValue += line[i];
+                    }
+                }
+                for (int j = 0; j < pixelValues.size(); j += 3) {
+                    double r = pixelValues[j] / static_cast<double>(maxColorValue);
+                    double g = pixelValues[j + 1] / static_cast<double>(maxColorValue);
+                    double b = pixelValues[j + 2] / static_cast<double>(maxColorValue);
+
+                    pixels.push_back(color(r, g, b));
+                }
             }
             file.close();
         }
@@ -74,18 +96,18 @@ class image {
             return pixels[x + (y * width)];
         }
         color get_color_at_pixel(double x, double y) const {
-            auto x = std::min(static_cast<int>(x * width), width - 1);
-            auto y = std::min(static_cast<int>(y * height), height - 1);
-            return get_color_at_pixel(x, y);
+            auto xCoord = static_cast<int>(x * width);
+            auto yCoord = static_cast<int>(y * height);
+            return get_color_at_pixel(xCoord, yCoord);
         }
 
         void write_to_file(std::string filename) {
             std::ofstream file;
             file.open(filename);
 
-            file << "P3\n" << width << " " << height << "\n" << maxColorValue << "\n";
+            file << "P3\n" << width << " " << height << "\n" << static_cast<int>(maxColorValue) << "\n";
             for (int i = 0; i < pixels.size(); i++) {
-                write_color(file, pixels[i], maxColorValue); // minor edit here to pass maxColorValue to write_color
+                write_color(file, pixels[i], maxColorValue + 0.999); // minor edit here to pass maxColorValue to write_color
             }
             file.close();
         }

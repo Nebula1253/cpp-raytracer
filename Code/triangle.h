@@ -114,6 +114,10 @@ class triangle : public shape {
             vec3 v2_minus_v0 = vertices[2] - vertices[0];
             return unit_vector(cross(v1_minus_v0, v2_minus_v0));
         }
+
+        color get_diffuse_color(point3 point) const override {
+            return mat.get_diffuse_color();
+        }
 }; 
 
 #endif

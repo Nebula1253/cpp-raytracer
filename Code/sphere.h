@@ -57,13 +57,12 @@ class sphere : public shape {
                 return mat.get_diffuse_color();
             }
             else {
-                vec3 thingy = unit_vector(point - center);
-                
-                auto phi = atan2(-thingy.z(), thingy.x()) + (2 * M_PI);
-                auto theta = acos(-thingy.y());
+                vec3 normalVector = get_normal(point);
+                auto u = asin(normalVector.x()) / M_PI + 0.5;
+                auto v = asin(normalVector.y()) / M_PI + 0.5;
 
-                auto u = phi / (2 * M_PI);
-                auto v = theta / M_PI;
+                // auto u = normalVector.x() / 2 + 0.5;
+                // auto v = normalVector.y() / 2 + 0.5;
 
                 return mat.get_texture().get_color_at_pixel(u, v);
             }
