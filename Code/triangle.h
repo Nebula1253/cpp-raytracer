@@ -10,26 +10,43 @@ class triangle : public shape {
         material mat;
 
         void get_barycentric_coordinates (double& alpha, double& beta, double& gamma, const point3& point) const{
-            auto x1 = vertices[0].x();
-            auto y1 = vertices[0].y();
-            auto z1 = vertices[0].z();
+            // auto x1 = vertices[0].x();
+            // auto y1 = vertices[0].y();
+            // auto z1 = vertices[0].z();
 
-            auto x2 = vertices[1].x();
-            auto y2 = vertices[1].y();
-            auto z2 = vertices[1].z();
+            // auto x2 = vertices[1].x();
+            // auto y2 = vertices[1].y();
+            // auto z2 = vertices[1].z();
 
-            auto x3 = vertices[2].x();
-            auto y3 = vertices[2].y();
-            auto z3 = vertices[2].z();
+            // auto x3 = vertices[2].x();
+            // auto y3 = vertices[2].y();
+            // auto z3 = vertices[2].z();
 
-            auto x = point.x();
-            auto y = point.y();
+            // auto x = point.x();
+            // auto y = point.y();
 
-            auto denom = (y2 - y3)*(x1 - x3) + (x3 - x2)*(y1 - y3);
+            // auto denom = (y2 - y3)*(x1 - x3) + (x3 - x2)*(y1 - y3);
 
-            alpha = ((y2 - y3)*(x - x3) + (x3 - x2)*(y - y3)) / denom;
-            beta = ((y3 - y1)*(x - x3) + (x1 - x3)*(y - y3)) / denom;
-            gamma = 1.0f - alpha - beta;
+            // alpha = ((y2 - y3)*(x - x3) + (x3 - x2)*(y - y3)) / denom;
+            // beta = ((y3 - y1)*(x - x3) + (x1 - x3)*(y - y3)) / denom;
+            // gamma = 1.0f - alpha - beta;
+
+            // taken from chatgpt and modified
+            vec3 v0 = vertices[1] - vertices[0];
+            vec3 v1 = vertices[2] - vertices[0];
+            vec3 v2 = point - vertices[0];
+
+            double d00 = dot(v0, v0);
+            double d01 = dot(v0, v1);
+            double d11 = dot(v1, v1);
+            double d20 = dot(v2, v0);
+            double d21 = dot(v2, v1);
+
+            double denom = d00 * d11 - d01 * d01;
+
+            alpha = (d11 * d20 - d01 * d21) / denom;
+            beta = (d00 * d21 - d01 * d20) / denom;
+            gamma = 1.0 - alpha - beta;
         }
     public:
         triangle() {}
@@ -146,18 +163,21 @@ class triangle : public shape {
                 // calculate barycentric coordinates for point
                 double alpha, beta, gamma;
                 get_barycentric_coordinates(alpha, beta, gamma, point);
+                
+                // std::cerr << "alpha: " << alpha << " beta: " << beta << " gamma: " << gamma << "\n";
 
-                auto u1 = 0;
-                auto v1 = 0;
+                auto u1 = 0.0;
+                auto v1 = 0.0;
 
-                auto u2 = 0;
-                auto v2 = 1;
+                auto u2 = 0.0;
+                auto v2 = 1.0;
 
-                auto u3 = 1;
-                auto v3 = 0;
+                auto u3 = 1.0;
+                auto v3 = 0.0;
 
                 auto u = alpha*u1 + beta*u2 + gamma*u3;
                 auto v = alpha*v1 + beta*v2 + gamma*v3;
+                // std::cerr << "u: " << u << " v: " << v << "\n";
 
                 return mat.get_texture().get_color_at_pixel(u, v);
             }
