@@ -315,7 +315,4 @@ int main(int argc, char *argv[]) {
     }
 
     std::clog << "\rDone.                 \n";
-
-    image checkerboard = image(filepath + "Textures/Checkerboard.ppm");
-    checkerboard.write_to_file(filepath + "Textures/checkerboard_test.ppm");
 }
