@@ -8,6 +8,29 @@ class triangle : public shape {
     private:
         point3 vertices[3];
         material mat;
+
+        void get_barycentric_coordinates (double& alpha, double& beta, double& gamma, const point3& point) const{
+            auto x1 = vertices[0].x();
+            auto y1 = vertices[0].y();
+            auto z1 = vertices[0].z();
+
+            auto x2 = vertices[1].x();
+            auto y2 = vertices[1].y();
+            auto z2 = vertices[1].z();
+
+            auto x3 = vertices[2].x();
+            auto y3 = vertices[2].y();
+            auto z3 = vertices[2].z();
+
+            auto x = point.x();
+            auto y = point.y();
+
+            auto denom = (y2 - y3)*(x1 - x3) + (x3 - x2)*(y1 - y3);
+
+            alpha = ((y2 - y3)*(x - x3) + (x3 - x2)*(y - y3)) / denom;
+            beta = ((y3 - y1)*(x - x3) + (x1 - x3)*(y - y3)) / denom;
+            gamma = 1.0f - alpha - beta;
+        }
     public:
         triangle() {}
         triangle(const point3& v1, const point3& v2, const point3& v3)
@@ -116,7 +139,28 @@ class triangle : public shape {
         }
 
         color get_diffuse_color(point3 point) const override {
-            return mat.get_diffuse_color();
+            if (!mat.get_has_texture()) {
+                return mat.get_diffuse_color();
+            }
+            else {
+                // calculate barycentric coordinates for point
+                double alpha, beta, gamma;
+                get_barycentric_coordinates(alpha, beta, gamma, point);
+
+                auto u1 = 0;
+                auto v1 = 0;
+
+                auto u2 = 0;
+                auto v2 = 1;
+
+                auto u3 = 1;
+                auto v3 = 0;
+
+                auto u = alpha*u1 + beta*u2 + gamma*u3;
+                auto v = alpha*v1 + beta*v2 + gamma*v3;
+
+                return mat.get_texture().get_color_at_pixel(u, v);
+            }
         }
 }; 
 
