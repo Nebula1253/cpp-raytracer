@@ -1,19 +1,5 @@
 // Taken from Raytracing in One Weekend, modified from there
-#include "color.h"
-#include "ray.h"
-#include "vec3.h"
-#include "sphere.h"
-#include "triangle.h"
-#include "cylinder.h"
-#include "camera.h"
-#include <vector>
-#include "shape.h"
-#include "scene.h"
-#include "json.hpp"
-using json = nlohmann::json;
-#include <fstream>
-
-#include <iostream>
+# include "utility.h"
 
 std::string renderMode;
 camera cam;
