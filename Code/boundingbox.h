@@ -22,7 +22,7 @@ class BoundingBox {
                                     std::max(b1.rightTopFront.z(), b2.rightTopFront.z()));
         }
 
-        bool hit(const Ray& r) {
+        bool hit(const Ray& r) const {
             // uses answer by zachamars on https://gamedev.stackexchange.com/questions/18436/most-efficient-aabb-vs-ray-collision-algorithms
             Vec3 dirfrac = Vec3(1.0f / r.direction().x(), 1.0f / r.direction().y(), 1.0f / r.direction().z());
 
