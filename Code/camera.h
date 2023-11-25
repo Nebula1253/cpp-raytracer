@@ -4,20 +4,20 @@
 #include "vec3.h"
 #include "utility.h"
 
-class camera {
+class Camera {
     private:
         int width;
         int height;
-        point3 position;
-        vec3 lookAt;
-        vec3 upVector;
+        Point3 position;
+        Vec3 lookAt;
+        Vec3 upVector;
         double fov;
         double exposure;
-        vec3 pixel00_loc;
-        vec3 pixel_delta_u;
-        vec3 pixel_delta_v;
+        Vec3 pixel00_loc;
+        Vec3 pixel_delta_u;
+        Vec3 pixel_delta_v;
 
-        vec3 u,v,w; // basis vectors
+        Vec3 u,v,w; // basis vectors
 
         void initialise() {
             auto focal_length = (lookAt - position).length();
@@ -53,22 +53,20 @@ class camera {
         }
 
     public:
-        camera() :
+        Camera() :
             width(1920), height(1080), lookAt(0, 0, 1), upVector(0, 1, 0) {}
-        camera(int width, int height, point3 position, vec3 lookAt, vec3 upVector, double fov, double exposure) :
+        Camera(int width, int height, Point3 position, Vec3 lookAt, Vec3 upVector, double fov, double exposure) :
             width(width), height(height), position(position), lookAt(lookAt), upVector(upVector), fov(fov), exposure(exposure) {
                 initialise();
             }
 
         int getWidth() { return width; }
         int getHeight() { return height; }
-        point3 getPosition() { return position; }
+        Point3 getPosition() { return position; }
 
-        vec3 getPixel00Loc() { return pixel00_loc; }
-        vec3 getPixelDeltaU() { return pixel_delta_u; }
-        vec3 getPixelDeltaV() { return pixel_delta_v; }
-
-        // implement the actual code from main.cpp here later
+        Vec3 getPixel00Loc() { return pixel00_loc; }
+        Vec3 getPixelDeltaU() { return pixel_delta_u; }
+        Vec3 getPixelDeltaV() { return pixel_delta_v; }
 
 };
 

@@ -6,23 +6,28 @@
 #include "ray.h"
 #include "vec3.h"
 #include "material.h"
+#include "boundingbox.h"
 
-class shape {
+class Shape {
     public:
-        virtual double intersection(const ray& r) const {
+        virtual double intersection(const Ray& r) const {
             std::cerr << "under no circumstances should this be called ever" << std::endl;
         };
-        virtual material get_material() const {
+        virtual Material getMaterial() const {
             std::cerr << "under no circumstances should this be called ever" << std::endl;
         }
-        virtual vec3 get_normal(point3 point) const {
+        virtual Vec3 getNormal(Point3 point) const {
             std::cerr << "under no circumstances should this be called ever" << std::endl;
         }
-        virtual color get_diffuse_color(point3 point) const {
+        virtual Color getDiffuseColor(Point3 point) const {
             std::cerr << "under no circumstances should this be called ever" << std::endl;
         }
 
-        virtual ~shape() = default;
+        virtual ~Shape() = default;
+        
+        BoundingBox getBoundingBox() const {return boundingBox;}
+    protected:
+        BoundingBox boundingBox;
         
 };
 

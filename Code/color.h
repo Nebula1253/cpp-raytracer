@@ -6,9 +6,9 @@
 
 #include <iostream>
 
-using color = vec3;
+using Color = Vec3;
 
-void write_color(std::ostream &out, color pixel_color, double max_color_value = 255.999) {
+void writeColor(std::ostream &out, Color pixel_color, double max_color_value = 255.999) {
     // Write the translated [0,255] value of each color component - the pixel color here is a vec3 with values in [0,1]
     out << static_cast<int>(max_color_value * pixel_color.x()) << ' '
         << static_cast<int>(max_color_value * pixel_color.y()) << ' '

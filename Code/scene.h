@@ -6,27 +6,27 @@
 #include "pointlight.h"
 #include <vector>
 
-class scene {
+class Scene {
     private:
-        color background_color;
-        std::vector<shape*> shapes;
-        std::vector<pointlight*> lightsources;
+        Color background_color;
+        std::vector<Shape*> shapes;
+        std::vector<PointLight*> lightsources;
 
     public:
-        scene() {};
+        Scene() {};
         
-        scene(color background_color, std::vector<shape*> shapes) : 
+        Scene(Color background_color, std::vector<Shape*> shapes) : 
             background_color(background_color), 
             shapes(shapes){};
 
-        scene(color background_color, std::vector<shape*> shapes, std::vector<pointlight*> lightsources) : 
+        Scene(Color background_color, std::vector<Shape*> shapes, std::vector<PointLight*> lightsources) : 
             background_color(background_color), 
             shapes(shapes),
             lightsources(lightsources){};
 
-        std::vector<shape*> getShapes() const { return shapes; };
-        std::vector<pointlight*> getLights() const { return lightsources; }
-        color getBackgroundColor() const { return background_color; };
+        std::vector<Shape*> getShapes() const { return shapes; };
+        std::vector<PointLight*> getLights() const { return lightsources; }
+        Color getBackgroundColor() const { return background_color; };
 };
 
 #endif

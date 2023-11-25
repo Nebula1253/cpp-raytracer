@@ -4,12 +4,12 @@
 #include "shape.h"
 #include "vec3.h"
 
-class triangle : public shape {
+class triangle : public Shape {
     private:
-        point3 vertices[3];
-        material mat;
+        Point3 vertices[3];
+        Material mat;
 
-        void get_barycentric_coordinates (double& alpha, double& beta, double& gamma, const point3& point) const{
+        void get_barycentric_coordinates (double& alpha, double& beta, double& gamma, const Point3& point) const{
             // auto x1 = vertices[0].x();
             // auto y1 = vertices[0].y();
             // auto z1 = vertices[0].z();
@@ -32,9 +32,9 @@ class triangle : public shape {
             // gamma = 1.0f - alpha - beta;
 
             // taken from chatgpt and modified
-            vec3 v0 = vertices[1] - vertices[0];
-            vec3 v1 = vertices[2] - vertices[0];
-            vec3 v2 = point - vertices[0];
+            Vec3 v0 = vertices[1] - vertices[0];
+            Vec3 v1 = vertices[2] - vertices[0];
+            Vec3 v2 = point - vertices[0];
 
             double d00 = dot(v0, v0);
             double d01 = dot(v0, v1);
@@ -50,24 +50,44 @@ class triangle : public shape {
         }
     public:
         triangle() {}
-        triangle(const point3& v1, const point3& v2, const point3& v3)
+        triangle(const Point3& v1, const Point3& v2, const Point3& v3)
             : vertices{v1, v2, v3}
-        {}
-        triangle(const point3& v1, const point3& v2, const point3& v3, const material& mat)
+        {
+            auto minX = std::min(v1.x(), std::min(v2.x(), v3.x())); // prompt was std::min(v1.x(), rest auto generated based on pattern
+            auto minY = std::min(v1.y(), std::min(v2.y(), v3.y()));
+            auto minZ = std::min(v1.z(), std::min(v2.z(), v3.z()));
+
+            auto maxX = std::max(v1.x(), std::max(v2.x(), v3.x()));
+            auto maxY = std::max(v1.y(), std::max(v2.y(), v3.y()));
+            auto maxZ = std::max(v1.z(), std::max(v2.z(), v3.z()));
+
+            boundingBox = BoundingBox(Point3(minX, minY, minZ), Point3(maxX, maxY, maxZ));
+        }
+        triangle(const Point3& v1, const Point3& v2, const Point3& v3, const Material& mat)
             : vertices{v1, v2, v3}, mat(mat)
-        {}
+        {
+            auto minX = std::min(v1.x(), std::min(v2.x(), v3.x())); // prompt was std::min(v1.x(), rest auto generated based on pattern
+            auto minY = std::min(v1.y(), std::min(v2.y(), v3.y()));
+            auto minZ = std::min(v1.z(), std::min(v2.z(), v3.z()));
+
+            auto maxX = std::max(v1.x(), std::max(v2.x(), v3.x()));
+            auto maxY = std::max(v1.y(), std::max(v2.y(), v3.y()));
+            auto maxZ = std::max(v1.z(), std::max(v2.z(), v3.z()));
+
+            boundingBox = BoundingBox(Point3(minX, minY, minZ), Point3(maxX, maxY, maxZ));
+        }
 
         // get function for vertices
         // point3* get_vertices() const { return vertices; }
-        point3 get_vertex(int i) const { return vertices[i]; }
+        Point3 get_vertex(int i) const { return vertices[i]; }
 
-        bool intersection_neel(const ray& r) const {
+        bool intersection_neel(const Ray& r) const {
             const float EPSILON = 0.000001;
-            vec3 v1_minus_v0 = vertices[1] - vertices[0];
-            vec3 v2_minus_v0 = vertices[2] - vertices[0];
+            Vec3 v1_minus_v0 = vertices[1] - vertices[0];
+            Vec3 v2_minus_v0 = vertices[2] - vertices[0];
 
-            vec3 plane_normal = unit_vector(cross(v1_minus_v0, v2_minus_v0));
-            vec3 dir = unit_vector(r.direction());
+            Vec3 plane_normal = unit_vector(cross(v1_minus_v0, v2_minus_v0));
+            Vec3 dir = unit_vector(r.direction());
             if (dot(plane_normal, dir) > -EPSILON && dot(plane_normal, dir) < EPSILON) {
                 return false; // the ray is parallel to the plane of the triangle, so how the hell would it ever intersect
             }
@@ -95,16 +115,16 @@ class triangle : public shape {
             return !(u < 0 || v < 0 || u+v > 1 || t <= EPSILON);
         }
 
-        material get_material() const override {return mat;}
+        Material getMaterial() const override {return mat;}
 
         // stolen off wikipedia's page on the MT algorithm, adapted to fit the vec3 and ray implementation
-        double intersection(const ray&r) const override {
+        double intersection(const Ray&r) const override {
             // std::cerr << "THIS IS THE TRIANGLE INTERSECTION" << std::endl;
             const float EPSILON = 0.000001;
-            vec3 vertex0 = vertices[0];
-            vec3 vertex1 = vertices[1];  
-            vec3 vertex2 = vertices[2];
-            vec3 edge1, edge2, h, s, q;
+            Vec3 vertex0 = vertices[0];
+            Vec3 vertex1 = vertices[1];  
+            Vec3 vertex2 = vertices[2];
+            Vec3 edge1, edge2, h, s, q;
             double a, f, u, v;
             edge1 = vertex1 - vertex0;
             edge2 = vertex2 - vertex0;
@@ -149,15 +169,15 @@ class triangle : public shape {
         }
 
         // COPILOT BABEY
-        vec3 get_normal(point3 point) const override {
-            vec3 v1_minus_v0 = vertices[1] - vertices[0];
-            vec3 v2_minus_v0 = vertices[2] - vertices[0];
+        Vec3 getNormal(Point3 point) const override {
+            Vec3 v1_minus_v0 = vertices[1] - vertices[0];
+            Vec3 v2_minus_v0 = vertices[2] - vertices[0];
             return unit_vector(cross(v1_minus_v0, v2_minus_v0));
         }
 
-        color get_diffuse_color(point3 point) const override {
-            if (!mat.get_has_texture()) {
-                return mat.get_diffuse_color();
+        Color getDiffuseColor(Point3 point) const override {
+            if (!mat.getHasTexture()) {
+                return mat.getDiffuseColor();
             }
             else {
                 // calculate barycentric coordinates for point
@@ -179,7 +199,7 @@ class triangle : public shape {
                 auto v = alpha*v1 + beta*v2 + gamma*v3;
                 // std::cerr << "u: " << u << " v: " << v << "\n";
 
-                return mat.get_texture().get_color_at_pixel(u, v);
+                return mat.getTexture().getColorAtPixel(u, v);
             }
         }
 }; 
