@@ -54,8 +54,6 @@ public:
 
         double leftSubtreeHit = left->hit(r, hitShape);
         double rightSubtreeHit = right->hit(r, hitShape);
-        // std::cerr << "left subtree hit: " << leftSubtreeHit << std::endl;
-        // std::cerr << "right subtree hit: " << rightSubtreeHit << std::endl;
 
         if (leftSubtreeHit == -1) {
             return rightSubtreeHit;
@@ -65,6 +63,28 @@ public:
             return std::min(leftSubtreeHit, rightSubtreeHit);
         }
     }
+
+    // traverse the tree and print shapes to stdcerr
+    void printShapes() const {
+        if (shape) {
+            shape->getType();
+            std::cerr << shape->getBoundingBox().leftBottomBack << std::endl;
+        } else {
+            left->printShapes();
+            right->printShapes();
+        }
+    }
+
+    // copilot - inline suggestion
+    ~BVHNode() {
+        if (left) {
+            delete left;
+        }
+        if (right) {
+            delete right;
+        }
+    }
+
 };
 
 #endif

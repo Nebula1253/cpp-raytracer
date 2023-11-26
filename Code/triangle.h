@@ -133,6 +133,10 @@ class triangle : public Shape {
                 return mat.getTexture().getColorAtPixel(u, v);
             }
         }
+
+        void getType() const override {
+            std::cerr << "triangle" << std::endl;
+        }
 }; 
 
 #endif

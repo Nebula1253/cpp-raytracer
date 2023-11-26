@@ -339,6 +339,7 @@ int main(int argc, char *argv[]) {
     parseSceneParams(j["scene"]);
 
     root = BVHNode(sce.getShapes(), 0, sce.getShapes().size());
+    root.printShapes();
 
     // Render
     std::vector<Color> pixels;

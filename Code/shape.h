@@ -24,7 +24,11 @@ class Shape {
         }
 
         virtual ~Shape() = default;
-        
+
+        virtual void getType() const {
+            std::cerr << "under no circumstances should this be called ever" << std::endl;
+        }
+
         BoundingBox getBoundingBox() const {return boundingBox;}
     protected:
         BoundingBox boundingBox;

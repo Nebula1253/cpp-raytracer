@@ -10,17 +10,21 @@ class sphere : public Shape {
         Point3 center;
         double radius;
         Material mat;
+
+        void initialiseBoundingBox() {
+            boundingBox = BoundingBox(center - Vec3(radius, radius, radius), center + Vec3(radius, radius, radius));
+        }
     public:
         sphere() {}
         sphere(const Point3& center, double radius)
             : center(center), radius(radius)
         {
-            boundingBox = BoundingBox(center - Vec3(radius, radius, radius), center + Vec3(radius, radius, radius));
+            initialiseBoundingBox();
         }
         sphere(const Point3& center,  const Material& mat, double radius)
             : center(center), radius(radius), mat(mat)
         {
-            boundingBox = BoundingBox(center - Vec3(radius, radius, radius), center + Vec3(radius, radius, radius));
+            initialiseBoundingBox();
         }
 
         Point3 get_center() const { return center; }
@@ -61,5 +65,9 @@ class sphere : public Shape {
 
                 return mat.getTexture().getColorAtPixel(u, v);
             }
+        }
+
+        void getType() const override {
+            std::cerr << "sphere" << std::endl;
         }
 };
