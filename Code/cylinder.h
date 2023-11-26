@@ -13,34 +13,28 @@ class Cylinder : public Shape {
         double height;
         Material mat;
 
+        void initialiseBoundingBox() {
+            // taken from https://iquilezles.org/articles/diskbbox/
+            auto top = center + (axis * height);
+            auto bottom = center - (axis * height);
+
+            Vec3 a = top - bottom;
+            Vec3 e = radius * sqrt( 1 - (a.length_squared() / (a.x() * a.x() + a.z() * a.z())) ) * Vec3(1, 0, 1);
+
+            auto min = Vec3(std::min(top.x(), bottom.x()), std::min(top.y(), bottom.y()), std::min(top.z(), bottom.z())) - e;
+            auto max = Vec3(std::max(top.x(), bottom.x()), std::max(top.y(), bottom.y()), std::max(top.z(), bottom.z())) + e;
+
+            boundingBox = BoundingBox(min, max);
+        }
     public:
         Cylinder() {}
         Cylinder(const Point3& center, const Vec3& axis, double radius, double height) :
             center(center), axis(unit_vector(axis)), radius(radius), height(height) {
-                // taken from https://iquilezles.org/articles/diskbbox/
-                auto top = center + (axis * height);
-                auto bottom = center - (axis * height);
-
-                Vec3 a = top - bottom;
-                Vec3 e = radius * sqrt( 1 - (a.length_squared() / (a.x() * a.x() + a.z() * a.z())) ) * Vec3(1, 0, 1);
-
-                auto min = Vec3(std::min(top.x(), bottom.x()), std::min(top.y(), bottom.y()), std::min(top.z(), bottom.z())) - e;
-                auto max = Vec3(std::max(top.x(), bottom.x()), std::max(top.y(), bottom.y()), std::max(top.z(), bottom.z())) + e;
-
-                boundingBox = BoundingBox(min, max);
+                initialiseBoundingBox();
             }
         Cylinder(const Point3& center, const Vec3& axis, const Material& mat, double radius, double height) :
             center(center), axis(unit_vector(axis)), radius(radius), height(height), mat(mat) {
-                auto top = center + (axis * height);
-                auto bottom = center - (axis * height);
-
-                Vec3 a = top - bottom;
-                Vec3 e = radius * sqrt( 1 - (a.length_squared() / (a.x() * a.x() + a.z() * a.z())) ) * Vec3(1, 0, 1);
-
-                auto min = Vec3(std::min(top.x(), bottom.x()), std::min(top.y(), bottom.y()), std::min(top.z(), bottom.z())) - e;
-                auto max = Vec3(std::max(top.x(), bottom.x()), std::max(top.y(), bottom.y()), std::max(top.z(), bottom.z())) + e;
-
-                boundingBox = BoundingBox(min, max);
+                initialiseBoundingBox();
             }
 
         Point3 getCenter() const {return center;}
@@ -56,7 +50,7 @@ class Cylinder : public Shape {
             Vec3 oc = r.origin() - bottom;
 
             // not part of the original copilot output: added by copilot later once 
-            // I had a different reference for cylinders with an arbitrary axis open in Chrome: oh god copilot is going to kill us all
+            // I had a different reference for cylinders with an arbitrary axis open in Chrome
             Vec3 dir = r.direction();
             double a = dot(dir, dir) - (dot(dir, axis) * dot(dir, axis));
             double b = 2.0 * (dot(oc, dir) - (dot(oc, axis) * dot(dir, axis)));

@@ -29,7 +29,6 @@ class sphere : public Shape {
         Material getMaterial() const override {return mat;}
 
         double intersection(const Ray& r) const override {
-            // std::cerr << "THIS IS THE SPHERE INTERSECTION" << std::endl;
             Vec3 oc = r.origin() - center;
 
             // we have an equation to solve: 
@@ -37,11 +36,6 @@ class sphere : public Shape {
             auto b = 2.0 * dot(oc, r.direction());
             auto c = dot(oc, oc) - radius*radius;
             auto discriminant = b*b - 4*a*c;
-
-            // return (discriminant >= 0);
-            // if (discriminant >= 0) return 1;
-            // else return -1;
-            // return -1;
 
             if (discriminant < 0) return -1; // no intersection
             else {
@@ -62,11 +56,8 @@ class sphere : public Shape {
             }
             else {
                 Vec3 normalVector = getNormal(point);
-                auto u = asin(normalVector.x()) / M_PI + 0.5;
-                auto v = asin(normalVector.y()) / M_PI + 0.5;
-
-                // auto u = normalVector.x() / 2 + 0.5;
-                // auto v = normalVector.y() / 2 + 0.5;
+                auto u = asin(normalVector.x()) / pi + 0.5;
+                auto v = asin(normalVector.y()) / pi + 0.5;
 
                 return mat.getTexture().getColorAtPixel(u, v);
             }
