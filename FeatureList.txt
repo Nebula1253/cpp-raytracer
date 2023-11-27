@@ -46,4 +46,4 @@ Not implemented
 Not implemented
 
 5. Multi-bounce path tracing
-Not implemented outside of reflection
+Not implemented
