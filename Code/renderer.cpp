@@ -7,7 +7,8 @@ std::string renderMode;
 Camera cam;
 Scene sce;
 BVHNode root;
-int maxNrBounces;
+int maxNrBounces = 8;
+int nrSamples = 10;
 
 bool inShadow(const Point3& point, int shapeIndex, const PointLight& light) {
     // suggested by copilot
@@ -38,7 +39,7 @@ Ray reflectRay(const Ray& r, const Point3& point, const Shape* s) {
     Vec3 normalVector = s->getNormal(point);
     Vec3 viewVector = unit_vector(point - r.origin());
     Vec3 reflectedVector = viewVector - (2 * dot(viewVector, normalVector) * normalVector);
-    Ray reflectedRay(point, reflectedVector);
+    Ray reflectedRay(point + (0.001 * reflectedVector), reflectedVector);
     return reflectedRay;
 }
 
@@ -50,7 +51,7 @@ Color rayColor(const Ray& r, int recursionDepth = 0, bool originIsRefractive = f
     for (int i = 0; i < sce.getShapes().size(); ++i) {
         Shape* currentShape = sce.getShapes()[i];
         double intersect = currentShape->intersection(r);
-        if (currentShape->getBoundingBox().hit(r)) {
+        // if (currentShape->getBoundingBox().hit(r)) {
             if (intersect != -1) {
                 if (intersect < closestIntersection || closestIntersection == -1) {
                     closestIntersection = intersect;
@@ -58,7 +59,7 @@ Color rayColor(const Ray& r, int recursionDepth = 0, bool originIsRefractive = f
                     closestShapeIndex = i;
                 }
             } 
-        }
+        // }
     }
     // closestIntersection = root.hit(r, closestShape);
     // std::cerr << "closestIntersection: " << closestIntersection << "\n";
@@ -107,7 +108,7 @@ Color rayColor(const Ray& r, int recursionDepth = 0, bool originIsRefractive = f
                 }
                 else {
                     // refraction
-                    Vec3 refractedVector = (eta_t * normalViewDot - sqrt(1 - eta_t*eta_t * (1 - normalViewDot*normalViewDot))) * normalVector - (eta_t * viewVector);
+                    Vec3 refractedVector = (eta_t * normalViewDot - sqrt(sqrtTerm)) * normalVector - (eta_t * viewVector);
                     Ray refractedRay(pointOnSurface + (0.001 * refractedVector), refractedVector);
                     Color refractedColor = rayColor(refractedRay, recursionDepth + 1, !originIsRefractive);
 
@@ -316,9 +317,23 @@ void parseSceneParams(const json& j) {
     sce = Scene(sceneBackgroundColor, shapes, lightsources);
 }
 
+Vec3 pixelSampleSquare() {
+    // Returns a random point in the square surrounding a pixel at the origin.
+    auto px = -0.5 + random_double();
+    auto py = -0.5 + random_double();
+    return (px * cam.getPixelDeltaU()) + (py * cam.getPixelDeltaV());
+}
+
+Ray getRandomRay(int i, int j) {
+    auto pixel_center = cam.getPixel00Loc() + (i * cam.getPixelDeltaU()) + (j * cam.getPixelDeltaV());
+    auto pixel_sample = pixel_center + pixelSampleSquare();
+    auto ray_direction = pixel_sample - cam.getPosition();
+    Ray r(cam.getPosition(), ray_direction);
+    return r;
+}
 
 int main(int argc, char *argv[]) {
-    // assuming the file name of the JSON file is passed as the first argument
+    // the file name of the JSON file is passed as the first argument, and the output file name is passed as the second argument
     // retrieve data from the JSON file
     std::string filepath = __FILE__;
     std::cerr << filepath << "\n";
@@ -329,17 +344,20 @@ int main(int argc, char *argv[]) {
     json j = json::parse(jsonFile);
 
     renderMode = j["rendermode"].get<std::string>();
-    maxNrBounces = j["nbounces"].get<int>();
-    std::cerr << "maxNrBounces: " << maxNrBounces << "\n";
-
+    if (j.contains("nbounces")) {
+        maxNrBounces = j["nbounces"].get<int>();
+        std::cerr << "maxNrBounces: " << maxNrBounces << "\n";
+    }
+    
     // Parse camera parameters
     parseCameraParams(j["camera"]);
 
     // Parse scene parameters
     parseSceneParams(j["scene"]);
 
-    root = BVHNode(sce.getShapes(), 0, sce.getShapes().size());
-    root.printShapes();
+    // Build BVH
+    // root = BVHNode(sce.getShapes(), 0, sce.getShapes().size());
+    // root.printShapes();
 
     // Render
     std::vector<Color> pixels;
@@ -347,11 +365,13 @@ int main(int argc, char *argv[]) {
         std::clog << "\rScanlines remaining: " << (cam.getHeight() - j) << ' ' << std::flush;
 
         for (int i = 0; i < cam.getWidth(); ++i) {
-            auto pixel_center = cam.getPixel00Loc() + (i * cam.getPixelDeltaU()) + (j * cam.getPixelDeltaV());
-            auto ray_direction = pixel_center - cam.getPosition();
-            Ray r(cam.getPosition(), ray_direction);
-            
-            Color pixel_color = rayColor(r);
+            Color pixel_color(0, 0, 0);
+            for (int s = 0; s < nrSamples; ++s) {
+                Ray r = getRandomRay(i, j);
+                pixel_color += rayColor(r);
+            }
+            pixel_color /= nrSamples;
+
             pixels.push_back(pixel_color);
         }
     }

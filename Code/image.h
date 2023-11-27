@@ -97,7 +97,7 @@ class Image {
 
             file << "P3\n" << width << " " << height << "\n" << static_cast<int>(maxColorValue) << "\n";
             for (int i = 0; i < pixels.size(); i++) {
-                writeColor(file, pixels[i], maxColorValue + 0.999); // minor edit here to pass maxColorValue to write_color
+                writeColor(file, pixels[i], maxColorValue); // minor edit here to pass maxColorValue to write_color
             }
             file.close();
         }

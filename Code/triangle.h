@@ -121,11 +121,11 @@ class triangle : public Shape {
                 auto u1 = 0.0;
                 auto v1 = 0.0;
 
-                auto u2 = 0.0;
-                auto v2 = 1.0;
+                auto u2 = 1.0;
+                auto v2 = 0.0;
 
-                auto u3 = 1.0;
-                auto v3 = 0.0;
+                auto u3 = 0.0;
+                auto v3 = 1.0;
 
                 auto u = alpha*u1 + beta*u2 + gamma*u3;
                 auto v = alpha*v1 + beta*v2 + gamma*v3;

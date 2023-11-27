@@ -1,0 +1,49 @@
+Basic raytracer features
+1. Image write (ppm format)
+Fully implemented - demonstrated in the fact that renders exist at all
+
+2. Camera implementation, with coordinate transformation
+Fully implemented - demonstrated in much the same way as above
+
+3. Intersection tests (sphere, triangles, cylinder)
+Fully implemented - I'm not saying this a third time
+
+4. Binary image writing (intersection/no intersection)
+Fully implemented - demonstrated in binary_primitives.ppm and scene_binary.ppm
+
+5. Blinn-Phong shading
+Fully implemented - demonstrated in simple_phong.ppm, scene.ppm, mirror_image.ppm and video
+
+6. Shadows
+Fully implemented - demonstrated in simple_phong.ppm, scene.ppm, mirror_image.ppm and video
+
+7. Textures (on sphere, triangle, cylinder)
+Mostly implemented - demonstrated in video
+
+8. Tone mapping (linear)
+Fully implemented - demonstrated in the fact that renders have colours in them
+
+9. Reflection
+Fully implemented - demonstrated in mirror_image.ppm, scene.ppm and video
+
+10. Refraction
+Fully implemented - demonstrated in video
+
+11. Bounding volume hierarchy as an acceleration structure
+Unsuccessfully implemented (the attempt still exists, and bounding boxes are implemented, though the cylinder one is buggy)
+
+Pathtracer features
+1. Antialiasing via multi-sampling pixels
+Fully implemented - demonstrated in all renders in TestSuite
+
+2. Defocus in finite-aperture cameras by sampling the camera’s aperture
+Not implemented
+
+3. Render materials with BRDF’s (e.g. microfacet)
+Not implemented
+
+4. Soft shadows via sampling area lights
+Not implemented
+
+5. Multi-bounce path tracing
+Not implemented outside of reflection

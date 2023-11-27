@@ -1,0 +1,247 @@
+{
+  "1": {
+    "feature": "Basic Raytracer:1",
+    "method": "Copilot suggestion",
+    "query": "void writeToFile(std::string filename) {",
+    "response": "",
+    "code": "Code/image.h:94 - Code/image.h:103"
+  },
+  "2": {
+    "feature": "Basic Raytracer:1",
+    "method": "Copilot suggestion",
+    "query": "void writeColor(std::ostream &out, Color pixel_color",
+    "response": "int ir = static_cast<int>(255.999 * r);\nint ig = static_cast<int>(255.999 * g);\nint ib = static_cast<int>(255.999 * b);\nstd::cout << ir << ' ' << ig << ' ' << ib << '\\n';",
+    "code": "Code/color.h:24 - Code/color.h:29"
+  },
+  "3": {
+    "feature": "Basic Raytracer:2",
+    "method": "Copilot suggestion",
+    "query": "no explicit query: I had the camera code from ROTW in my main class and was splitting it into its own class",
+    "response": "// Camera\n\n    auto focal_length = 1.0;\n    auto viewport_height = 2.0;\n    auto viewport_width = viewport_height * (static_cast<double>(image_width)/image_height);\n    auto camera_center = point3(0, 0, 0);\n\n    // Calculate the vectors across the horizontal and down the vertical viewport edges.\n    auto viewport_u = vec3(viewport_width, 0, 0);\n    auto viewport_v = vec3(0, -viewport_height, 0);\n\n    // Calculate the horizontal and vertical delta vectors from pixel to pixel.\n    auto pixel_delta_u = viewport_u / image_width;\n    auto pixel_delta_v = viewport_v / image_height;\n\n    // Calculate the location of the upper left pixel.\n    auto viewport_upper_left = camera_center\n                             - vec3(0, 0, focal_length) - viewport_u/2 - viewport_v/2;\n    auto pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);",
+    "code": "Code/camera.h:23 - Code/camera.h:52"
+  },
+  "4": {
+    "feature": "Basic Raytracer:2",
+    "method": "Copilot suggestion",
+    "query": "again, no explicit query: was writing boilerplate initialisation code",
+    "response": "",
+    "code": "Code/camera.h:56 - Code/camera.h:69"
+  },
+  "5": {
+    "feature": "Basic Raytracer:3",
+    "method": "Copilot suggestion",
+    "query": "double intersection(const Ray&r) const override {",
+    "response": "const float EPSILON = 0.0000001;\n    Vector3D vertex0 = inTriangle->vertex0;\n    Vector3D vertex1 = inTriangle->vertex1;  \n    Vector3D vertex2 = inTriangle->vertex2;\n    Vector3D edge1, edge2, rayVecXe2, s, sXe1;\n    float det, invDet, u, v;\n    edge1 = vertex1 - vertex0;\n    edge2 = vertex2 - vertex0;\n    rayVecXe2 = rayVector.crossProduct(edge2);\n    det = edge1.dotProduct(rayVecXe2);\n\n    if (det > -EPSILON && det < EPSILON)\n        return false;    // This ray is parallel to this triangle.\n\n    invDet = 1.0 / det;\n    s = rayOrigin - vertex0;\n    u = invDet * s.dotProduct(rayVecXe2);\n\n    if (u < 0.0 || u > 1.0)\n        return false;\n\n    sXe1 = s.crossProduct(edge1);\n    v = invDet * rayVector.dotProduct(sXe1);\n\n    if (v < 0.0 || u + v > 1.0)\n        return false;\n\n    // At this stage we can compute t to find out where the intersection point is on the line.\n    float t = invDet * edge2.dotProduct(sXe1);\n\n    if (t > EPSILON) // ray intersection\n    {\n        outIntersectionPoint = rayOrigin + rayVector * t;\n        return true;\n    }\n    else // This means that there is a line intersection but not a ray intersection.\n        return false;",
+    "code": "Code/triangle.h:66 - Code/triangle.h:103"
+  },
+  "6": {
+    "feature": "Basic Raytracer:3",
+    "method": "Copilot suggestion",
+    "query": "no explicit prompt: had code from ROTW in render.cpp initially, was splitting code into sphere class",
+    "response": "vec3 oc = r.origin() - center;\n    auto a = dot(r.direction(), r.direction());\n    auto b = 2.0 * dot(oc, r.direction());\n    auto c = dot(oc, oc) - radius*radius;\n    auto discriminant = b*b - 4*a*c;\n    return (discriminant >= 0);",
+    "code": "Code/sphere.h:37 - Code/triangle.h:49"
+  },
+  "7": {
+    "feature": "Basic Raytracer:3",
+    "method": "Copilot suggestion",
+    "query": "Vec3 dir = r.direction();\n            double a = dot(dir, dir) - (dot(dir, axis) * dot(dir, axis));",
+    "response": "",
+    "code": "Code/cylinder.h:55 - Code/cylinder.h:72"
+  },
+  "8": {
+    "feature": "Basic Raytracer:3",
+    "method": "Copilot suggestion",
+    "query": "auto bottomCapCentre = bottom;\n            auto topCapCentre = center + (axis * height);\n\n            auto bottomCapNormal = -axis;\n            auto topCapNormal = axis;",
+    "response": "",
+    "code": "Code/cylinder.h:82 - Code/cylinder.h:100"
+  },
+  "9": {
+    "feature": "Basic Raytracer:5",
+    "method": "Copilot suggestion",
+    "query": "no explicit prompt: generated line by line when i'd typed a fair bit of the line first",
+    "response": "",
+    "code": "Code/renderer.cpp:124 - Code/cylinder.h:128"
+  },
+  "10": {
+    "feature": "Basic Raytracer:5",
+    "method": "Copilot suggestion",
+    "query": "no explicit prompt: generated line by line when i'd typed a fair bit of the line first",
+    "response": "",
+    "code": "Code/renderer.cpp:140 - Code/cylinder.h:159"
+  },
+  "11": {
+    "feature": "Basic Raytracer:5",
+    "method": "Copilot suggestion",
+    "query": "Vec3 getNormal(Point3 point)",
+    "response": "",
+    "code": "Code/sphere.h:54 - Code/sphere.h:56"
+  },
+  "12": {
+    "feature": "Basic Raytracer:5",
+    "method": "Copilot suggestion",
+    "query": "Vec3 getNormal(Point3 point) const override {\n            Vec3 v1_minus_v0",
+    "response": "",
+    "code": "Code/triangle.h:106 - Code/triangle.h:110"
+  },
+  "13": {
+    "feature": "Basic Raytracer:5",
+    "method": "Copilot suggestion",
+    "query": "Vec3 getNormal(Point3 point) const override {\n            // Top and bottom cap intersection\n            auto top = center + (axis * height);",
+    "response": "",
+    "code": "Code/cylinder.h:105 - Code/cylinder.h:113"
+  },
+  "14": {
+    "feature": "Basic Raytracer:5",
+    "method": "Copilot suggestion",
+    "query": "// Curved surface intersection\n            auto t = dot(point - bottom, axis);",
+    "response": "",
+    "code": "Code/cylinder.h:117 - Code/cylinder.h:120"
+  },
+  "15": {
+    "feature": "Basic Raytracer:6",
+    "method": "Copilot suggestion",
+    "query": "Variable assignments generated when I typed in the variable name, condition of if statement generated after typing \"for (int i = 0\" - was refactored later manually, as original implementation iterated through all light sources",
+    "response": "",
+    "code": "Code/renderer.cpp:15 - Code/renderer.cpp:32"
+  },
+  "16": {
+    "feature": "Basic Raytracer:7",
+    "method": "Copilot suggestion",
+    "query": "std::getline(file, line);\n                if (line[0] == 'P') {",
+    "response": "",
+    "code": "Code/image.h:27 - Code/image.h:31"
+  },
+  "17": {
+    "feature": "Basic Raytracer:7",
+    "method": "Copilot suggestion",
+    "query": "if (nextLineIsResolution) {\n                    nextLineIsResolution = false;\n                    std::string widthStr = line.substr(0, line.find(' '));",
+    "response": "",
+    "code": "Code/image.h:35 - Code/image.h:44"
+  },
+  "18": {
+    "feature": "Basic Raytracer:7",
+    "method": "Copilot suggestion",
+    "query": "if (nextLineIsMaxValue) {\n                    nextLineIsMaxValue = false;\n                    maxColorValue",
+    "response": "",
+    "code": "Code/image.h:46 - Code/image.h:50"
+  },
+  "19": {
+    "feature": "Basic Raytracer:7",
+    "method": "Copilot suggestion",
+    "query": "// the file is a list of numbers separated by varying amounts of whitespace and newlines, \n                // so read them all into a vector of ints",
+    "response": "",
+    "code": "Code/image.h:57 - Code/image.h:75"
+  },
+  "20": {
+    "feature": "Basic Raytracer:7",
+    "method": "Copilot suggestion",
+    "query": "Color getColorAtPixel(int x, int y) const",
+    "response": "",
+    "code": "Code/image.h:85 - Code/image.h:87"
+  },
+  "21": {
+    "feature": "Basic Raytracer:7",
+    "method": "Copilot suggestion",
+    "query": "Color getColorAtPixel(double x, double y) const {\n            auto xCoord",
+    "response": "",
+    "code": "Code/image.h:88 - Code/image.h:92"
+  },
+  "22": {
+    "feature": "Basic Raytracer:7",
+    "method": "Copilot suggestion",
+    "query": "Color getDiffuseColor(Point3 point) const override {\n            if (!mat.getHasTexture()) {\n                return mat.getDiffuseColor();\n            }\n            else {\n                Vec3 normalVector = getNormal(point);\n                auto u = asin(normalVector.x())",
+    "response": "",
+    "code": "Code/sphere.h:58 - Code/sphere.h:69"
+  },
+  "23": {
+    "feature": "Basic Raytracer:7",
+    "method": "ChatGPT (3.5)",
+    "query": "convert point in world space on cylinder to cylindrical coordinates (angle, height) in c++\nwhat if the cylinder is not aligned with the z axis",
+    "response": "struct CylindricalCoordinates {\n    double angle;  // in radians\n    double height;\n};\n\nCylindricalCoordinates convertToWorldToCylindrical(const Point3D& cylinderAxisPoint, const Vector3D& cylinderAxisDirection, const Point3D& point) {\n    CylindricalCoordinates cylindricalCoord;\n\n    // Calculate vector from cylinder axis point to the point\n    Vector3D pointToAxis;\n    pointToAxis.x = point.x - cylinderAxisPoint.x;\n    pointToAxis.y = point.y - cylinderAxisPoint.y;\n    pointToAxis.z = point.z - cylinderAxisPoint.z;\n\n    // Calculate height (project the vector onto the cylinder axis)\n    cylindricalCoord.height = (pointToAxis.x * cylinderAxisDirection.x +\n                               pointToAxis.y * cylinderAxisDirection.y +\n                               pointToAxis.z * cylinderAxisDirection.z);\n\n    // Calculate angle (theta) using the atan2 function\n    cylindricalCoord.angle = std::atan2(pointToAxis.y, pointToAxis.x);\n\n    return cylindricalCoord;\n}",
+    "code": "Code/cylinder.h:128 - Code/cylinder.h:136"
+  },
+  "24": {
+    "feature": "Basic Raytracer:7",
+    "method": "Copilot chat",
+    "query": "how can i convert a point on the surface of a cylinder into parametric coordinates \n(please note: it was also using an edited version of the GPT-generated code as reference during this, as said code was in cylinder.h)",
+    "response": "...\n// Normalize to [0, 1]\ndouble u = (angle + pi) / (2 * pi); // atan2 returns [-pi, pi], so shift and scale to [0, 1]\ndouble v = heightFromBase / (2 * height);",
+    "code": "Code/cylinder.h:141"
+  },
+  "25": {
+    "feature": "Basic Raytracer:7",
+    "method": "ChatGPT (3.5)",
+    "query": "calculate barycentric coordinates for a 3d triangle in c++",
+    "response": "// Function to calculate barycentric coordinates\nVector3d barycentricCoordinates(const Vector3d& P, const Vector3d& A, const Vector3d& B, const Vector3d& C) {\n    Vector3d v0 = B - A;\n    Vector3d v1 = C - A;\n    Vector3d v2 = P - A;\n\n    double d00 = v0.dot(v0);\n    double d01 = v0.dot(v1);\n    double d11 = v1.dot(v1);\n    double d20 = v2.dot(v0);\n    double d21 = v2.dot(v1);\n\n    double denom = d00 * d11 - d01 * d01;\n\n    double v = (d11 * d20 - d01 * d21) / denom;\n    double w = (d00 * d21 - d01 * d20) / denom;\n    double u = 1.0 - v - w;\n\n    return Vector3d(u, v, w);\n}",
+    "code": "Code/triangle.h:12 - Code/triangle.h:29"
+  },
+  "26": {
+    "feature": "Basic Raytracer:7",
+    "method": "ChatGPT (3.5)",
+    "query": "how do i find the texture coordinates of a point on the surface of a triangle",
+    "response": "...And then, you can use these barycentric coordinates to interpolate the texture coordinates at point P:\nuP =αuA+βuB+γuC\nvP=αvA+βvB+γvC\n​\nIn summary, make sure you have the initial texture coordinates (uA,vA), (uB,vB), and (uC,vC) at the vertices of your triangle, and then use the barycentric coordinates to interpolate the texture coordinates at any point within or on the triangle.",
+    "code": "Code/triangle.h:121 - Code/triangle.h:133"
+  },
+  "27": {
+    "feature": "Basic Raytracer:9",
+    "method": "Copilot suggestion",
+    "query": "Vec3 normalVector = s->getNormal(point);\nVec3 viewVector",
+    "response": "",
+    "code": "Code/renderer.cpp:38 - Code/renderer.c[[:42"
+  },
+  "28": {
+    "feature": "Basic Raytracer:9",
+    "method": "Copilot suggestion",
+    "query": "Ray reflectedRay =\nColor reflectedColor =",
+    "response": "",
+    "code": "Code/renderer.cpp:80 - Code/renderer.cpp:83"
+  },
+  "29": {
+    "feature": "Basic Raytracer:10",
+    "method": "Copilot suggestion",
+    "query": "if (sqrtTerm < 0) {\n                    // total internal reflection",
+    "response": "",
+    "code": "Code/renderer.cpp:103 - Code/renderer.cpp:106"
+  },
+  "30": {
+    "feature": "Basic Raytracer:10",
+    "method": "Copilot suggestion",
+    "query": "else {\n                    // refraction\n                    Vec3 refractedVector =",
+    "response": "The definition for the refracted vector was backwards from what the reference was using, so I had to correct that",
+    "code": "Code/renderer.cpp:110"
+  },
+  "31": {
+    "feature": "Basic Raytracer:11",
+    "method": "Copilot suggestion",
+    "query": "BoundingBox(const BoundingBox& b1, const BoundingBox& b2) {",
+    "response": "",
+    "code": "Code/boundingbox.h:15 - Code/boundingbox:23"
+  },
+  "32": {
+    "feature": "Basic Raytracer:11",
+    "method": "Copilot suggestion",
+    "query": "boundingBox =",
+    "response": "",
+    "code": "Code/sphere.h:16"
+  },
+  "33": {
+    "feature": "Basic Raytracer:11",
+    "method": "Copilot suggestion",
+    "query": "void initialiseBoundingBox() {\n            auto v1 = vertices[0];\n            auto v2 = vertices[1];\n            auto v3 = vertices[2];\n\n            auto minX = std::min(v1.x(),",
+    "response": "",
+    "code": "Code/triangle.h:32 - Code/triangle.h:44"
+  },
+  "34": {
+    "feature": "Basic Raytracer:11",
+    "method": "Copilot suggestion",
+    "query": "generated line by line - prompts were variable name and type",
+    "response": "",
+    "code": "Code/cylinder.h:22 - Code/triangle.h:25"
+  },
+  "35": {
+    "feature": "Basic Raytracer:11",
+    "method": "Copilot Chat",
+    "query": "how would i build a bounding volume hierarchy based on the bounding boxes of the shapes in renderer.cpp?",
+    "response": "class BVHNode {\npublic:\n    BoundingBox box;\n    BVHNode* left;\n    BVHNode* right;\n    Shape* shape;\n\n    BVHNode(const std::vector<Shape*>& shapes, size_t start, size_t end) {\n        // Select axis with largest span to split on\n        int axis = box.longestAxis();\n\n        // Sort shapes on selected axis\n        auto comparator = [axis](Shape* a, Shape* b) {\n            return a->bounding_box().min()[axis] < b->bounding_box().min()[axis];\n        };\n        std::sort(shapes.begin() + start, shapes.begin() + end, comparator);\n\n        size_t size = end - start;\n        if (size == 1) {\n            // Leaf node\n            left = right = nullptr;\n            shape = shapes[start];\n            box = shape->bounding_box();\n        } else {\n            // Internal node\n            shape = nullptr;\n            left = new BVHNode(shapes, start, start + size / 2);\n            right = new BVHNode(shapes, start + size / 2, end);\n            box = BoundingBox::surroundingBox(left->box, right->box);\n        }\n    }\n\n    bool hit(const Ray& r) const {\n        if (!box.hit(r)) {\n            return false;\n        }\n\n        if (shape) {\n            return shape->hit(r);\n        }\n\n        return left->hit(r) || right->hit(r);\n    }\n};",
+    "code": "Code/bvhnode.h:8 - Code/bvhnode.h:65"
+  }
+}
